@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nostromo - Panel Admin</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+</head>
+<body>
+  <header>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <h2 style="margin: 0; font-size: 1.3rem;">⚡ Nostromo Admin</h2>
+      <a href="/" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">Voir le site ↗</a>
+    </div>
+    <div class="user-info" id="user-info">
+      <!-- Injecté par JS -->
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar liste des articles -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h3 style="margin: 0; font-size: 1rem;">Articles</h3>
+        <button id="new-post-btn" class="btn" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">+ Nouvel article</button>
+      </div>
+      <ul id="posts-list" class="posts-list">
+        <!-- Injecté par JS -->
+      </ul>
+    </aside>
+
+    <!-- Zone d'édition / Formulaire CRUD -->
+    <main class="editor-area">
+      <form id="post-form" class="editor-form">
+        <input type="hidden" id="post-id">
+        
+        <div class="form-row">
+          <div>
+            <label for="title">Titre de l'article</label>
+            <input type="text" id="title" required placeholder="Mon super titre...">
+          </div>
+          <div>
+            <label for="slug">Slug URL (laisser vide pour auto)</label>
+            <input type="text" id="slug" placeholder="mon-super-titre">
+          </div>
+          <div>
+            <label for="status">Statut</label>
+            <select id="status">
+              <option value="draft">Brouillon</option>
+              <option value="published">Publié</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="summary">Résumé (description courte)</label>
+          <textarea id="summary" rows="2" placeholder="Résumé pour la page d'accueil..."></textarea>
+        </div>
+
+        <!-- Éditeur Markdown & Prévisualisation en direct (Split screen) -->
+        <div class="split-preview">
+          <div class="pane">
+            <label for="content">Contenu Markdown</label>
+            <textarea id="content" class="markdown-input" required placeholder="# Titre en Markdown..."></textarea>
+          </div>
+          <div class="pane">
+            <label>Prévisualisation HTML</label>
+            <div id="preview" class="preview-box markdown-body"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 1rem;">
+          <button type="button" id="delete-btn" class="btn btn-danger" style="display: none;">Supprimer l'article</button>
+          <div style="display: flex; gap: 1rem; margin-left: auto;">
+            <button type="submit" class="btn">Enregistrer</button>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="/admin/admin.js"></script>
+</body>
+</html>
