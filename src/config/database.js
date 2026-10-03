@@ -15,7 +15,6 @@ export function initDatabase(customPath) {
 
   const dbPath = customPath || process.env.DB_PATH || path.join(__dirname, '../../data/blog.db');
 
-  // Si ce n'est pas une base en mémoire, créer le dossier parent si nécessaire
   if (dbPath !== ':memory:') {
     const dir = path.dirname(dbPath);
     if (!fs.existsSync(dir)) {
@@ -25,12 +24,10 @@ export function initDatabase(customPath) {
 
   dbInstance = new Database(dbPath);
 
-  // Optimisations SQLite pour les applications web concurrentes
   dbInstance.pragma('journal_mode = WAL');
   dbInstance.pragma('foreign_keys = ON');
   dbInstance.pragma('busy_timeout = 5000');
 
-  // Création du schéma de la table des articles (posts)
   dbInstance.exec(`
     CREATE TABLE IF NOT EXISTS posts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

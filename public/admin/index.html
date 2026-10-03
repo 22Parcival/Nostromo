@@ -15,23 +15,19 @@
       <a href="/" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">Voir le site ↗</a>
     </div>
     <div class="user-info" id="user-info">
-      <!-- Injecté par JS -->
     </div>
   </header>
 
   <div class="admin-layout">
-    <!-- Sidebar liste des articles -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <h3 style="margin: 0; font-size: 1rem;">Articles</h3>
         <button id="new-post-btn" class="btn" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">+ Nouvel article</button>
       </div>
       <ul id="posts-list" class="posts-list">
-        <!-- Injecté par JS -->
       </ul>
     </aside>
 
-    <!-- Zone d'édition / Formulaire CRUD -->
     <main class="editor-area">
       <form id="post-form" class="editor-form">
         <input type="hidden" id="post-id">
@@ -59,7 +55,6 @@
           <textarea id="summary" rows="2" placeholder="Résumé pour la page d'accueil..."></textarea>
         </div>
 
-        <!-- Éditeur Markdown & Prévisualisation en direct (Split screen) -->
         <div class="split-preview">
           <div class="pane">
             <label for="content">Contenu Markdown</label>

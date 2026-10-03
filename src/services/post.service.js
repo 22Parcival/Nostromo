@@ -4,12 +4,12 @@ export function slugify(text) {
   return text
     .toString()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '') // Retire les caractères spéciaux non autorisés
-    .replace(/[\s_-]+/g, '-')     // Remplace espaces et underscores par des tirets
-    .replace(/^-+|-+$/g, '');     // Supprime les tirets en début et fin
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 export const postService = {
@@ -110,7 +110,6 @@ export const postService = {
       updates.push('status = ?');
       values.push(fields.status);
 
-      // Si l'article passe à "published" et n'avait pas encore de date de publication
       if (fields.status === 'published' && !existing.published_at) {
         updates.push('published_at = ?');
         values.push(new Date().toISOString());
@@ -121,11 +120,9 @@ export const postService = {
       values.push(fields.cover_image);
     }
 
-    // Mise à jour automatique de la date de modification
     updates.push("updated_at = datetime('now')");
 
     if (updates.length === 1) {
-      // Rien à mettre à jour à part updated_at
       return existing;
     }
 

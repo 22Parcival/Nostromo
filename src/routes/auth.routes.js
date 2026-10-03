@@ -3,7 +3,6 @@ import crypto from 'crypto';
 
 const router = Router();
 
-// Redirection vers Discord OAuth2
 router.get('/discord', (req, res) => {
   const state = crypto.randomBytes(16).toString('hex');
   req.session.oauthState = state;
@@ -19,7 +18,6 @@ router.get('/discord', (req, res) => {
   res.redirect(`https://discord.com/oauth2/authorize?${params.toString()}`);
 });
 
-// Callback après autorisation Discord
 router.get('/discord/callback', async (req, res) => {
   const { code, state } = req.query;
 
@@ -62,7 +60,6 @@ router.get('/discord/callback', async (req, res) => {
 
     const discordUser = await userResponse.json();
 
-    // Vérification de la liste blanche
     const adminIds = (process.env.ADMIN_DISCORD_IDS || '')
       .split(',')
       .map(id => id.trim());
@@ -94,7 +91,6 @@ router.get('/discord/callback', async (req, res) => {
       `);
     }
 
-    // Enregistrement en session
     req.session.user = {
       id: discordUser.id,
       username: discordUser.username,
@@ -110,7 +106,6 @@ router.get('/discord/callback', async (req, res) => {
   }
 });
 
-// Déconnexion
 router.get('/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/');

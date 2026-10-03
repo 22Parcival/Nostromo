@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const deleteBtn = document.getElementById('delete-btn');
   const newPostBtn = document.getElementById('new-post-btn');
 
-  // 1. Charger les infos utilisateur
   try {
     const meRes = await fetch('/api/admin/me');
     if (!meRes.ok) throw new Error('Non authentifié');
@@ -30,7 +29,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // 2. Prévisualisation Markdown en temps réel
   function updatePreview() {
     const rawMarkdown = contentInput.value;
     const rawHtml = marked.parse(rawMarkdown);
@@ -39,7 +37,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   contentInput.addEventListener('input', updatePreview);
 
-  // 3. Charger la liste des articles
   async function loadPosts(selectId = null) {
     try {
       const res = await fetch('/api/admin/posts');
@@ -75,7 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       </li>
     `).join('');
 
-    // Attacher les clics
     document.querySelectorAll('.post-item').forEach(li => {
       li.addEventListener('click', () => {
         const id = li.getAttribute('data-id');
@@ -115,7 +111,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   newPostBtn.addEventListener('click', newPostForm);
 
-  // 4. Soumission du formulaire (Création / Modification)
   postForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -151,7 +146,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // 5. Suppression d'un article
   deleteBtn.addEventListener('click', async () => {
     if (!currentPostId) return;
     if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) return;
@@ -179,6 +173,5 @@ document.addEventListener('DOMContentLoaded', async () => {
       .replace(/"/g, '&quot;');
   }
 
-  // Initialisation
   await loadPosts();
 });

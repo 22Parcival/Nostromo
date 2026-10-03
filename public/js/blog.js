@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const app = document.getElementById('app');
 
-  // Gérer la navigation par hash (#slug)
   const handleRoute = async () => {
     const hash = window.location.hash;
     if (hash.startsWith('#/article/')) {
