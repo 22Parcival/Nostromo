@@ -1,0 +1,27 @@
+{
+  "name": "nostromo-cms",
+  "version": "1.0.0",
+  "description": "CMS sur-mesure pour blog avec authentification Discord OAuth2 et Markdown",
+  "type": "module",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "test:db": "node src/config/database.test.js"
+  },
+  "keywords": [
+    "cms",
+    "blog",
+    "markdown",
+    "discord-oauth2",
+    "sqlite"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "dotenv": "^18.0.5",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0"
+  }
+}
