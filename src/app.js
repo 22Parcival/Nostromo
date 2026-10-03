@@ -36,24 +36,28 @@ app.use(session({
   }
 }));
 
-// Routes API Publiques (Articles)
-app.use('/api/posts', postRoutes);
-
-// Routes d'authentification (Discord OAuth2)
-app.use('/auth', authRoutes);
-
-// Routes API Administration (protégées par liste blanche)
-app.use('/api/admin', requireAdmin, adminRoutes);
-
-// Panel d'administration statique (protégé par liste blanche)
-app.use('/admin', requireAdmin, express.static(path.join(__dirname, '../public/admin')));
-
-// Site web public statique
+// 1. Site web public et assets communs (CSS, JS)
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Gestion des erreurs 404 globales
+// 2. Panel d'administration
+app.use('/admin', express.static(path.join(__dirname, '../public/admin')));
+
+// 3. Routes API Publiques
+app.use('/api/posts', postRoutes);
+
+// 4. Routes d'authentification
+app.use('/auth', authRoutes);
+
+// 5. Routes API Administration (protégées)
+app.use('/api/admin', requireAdmin, adminRoutes);
+
+// Gestion des erreurs 404 - Uniquement pour les requêtes non-statiques/non-API
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, '../public/index.html'));
+  if (req.accepts('html')) {
+    res.status(404).sendFile(path.join(__dirname, '../public/index.html'));
+    return;
+  }
+  res.status(404).json({ error: 'Ressource introuvable' });
 });
 
 const PORT = process.env.PORT || 3000;
