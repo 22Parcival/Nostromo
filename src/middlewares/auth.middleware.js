@@ -1,6 +1,3 @@
-/**
- * Middleware de protection des routes admin avec vérification de la liste blanche Discord.
- */
 export function requireAdmin(req, res, next) {
   if (!req.session || !req.session.user) {
     if (req.xhr || req.headers.accept?.includes('json')) {

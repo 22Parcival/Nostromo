@@ -1,10 +1,5 @@
 import { getDb } from '../config/database.js';
 
-/**
- * Génère un slug propre et sécurisé pour l'URL à partir d'un texte.
- * @param {string} text
- * @returns {string}
- */
 export function slugify(text) {
   return text
     .toString()
@@ -18,9 +13,6 @@ export function slugify(text) {
 }
 
 export const postService = {
-  /**
-   * Crée un nouvel article.
-   */
   create({
     title,
     slug,
@@ -56,18 +48,12 @@ export const postService = {
     return this.getById(result.lastInsertRowid);
   },
 
-  /**
-   * Récupère un article par son identifiant unique ID.
-   */
   getById(id) {
     const db = getDb();
     const stmt = db.prepare('SELECT * FROM posts WHERE id = ?');
     return stmt.get(id);
   },
 
-  /**
-   * Récupère un article par son slug URL.
-   */
   getBySlug(slug, publishedOnly = false) {
     const db = getDb();
     const query = publishedOnly
@@ -77,9 +63,6 @@ export const postService = {
     return stmt.get(slug);
   },
 
-  /**
-   * Récupère la liste des articles avec pagination optionnelle.
-   */
   getAll({ publishedOnly = false, limit = 50, offset = 0 } = {}) {
     const db = getDb();
     const query = publishedOnly
@@ -97,9 +80,6 @@ export const postService = {
     return stmt.all(limit, offset);
   },
 
-  /**
-   * Met à jour un article existant.
-   */
   update(id, fields = {}) {
     const db = getDb();
     const existing = this.getById(id);
@@ -157,9 +137,6 @@ export const postService = {
     return this.getById(id);
   },
 
-  /**
-   * Supprime un article par son ID.
-   */
   delete(id) {
     const db = getDb();
     const stmt = db.prepare('DELETE FROM posts WHERE id = ?');

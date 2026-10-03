@@ -8,11 +8,6 @@ const __dirname = path.dirname(__filename);
 
 let dbInstance = null;
 
-/**
- * Initialise et retourne l'instance de la base de données SQLite.
- * @param {string} [customPath] - Chemin alternatif (utile pour les tests ou :memory:)
- * @returns {Database.Database}
- */
 export function initDatabase(customPath) {
   if (dbInstance) {
     return dbInstance;
@@ -60,11 +55,6 @@ export function initDatabase(customPath) {
   return dbInstance;
 }
 
-/**
- * Retourne l'instance active de la base de données SQLite.
- * Initialise la base avec les paramètres par défaut si ce n'est pas déjà fait.
- * @returns {Database.Database}
- */
 export function getDb() {
   if (!dbInstance) {
     return initDatabase();
@@ -72,9 +62,6 @@ export function getDb() {
   return dbInstance;
 }
 
-/**
- * Ferme la connexion à la base de données.
- */
 export function closeDatabase() {
   if (dbInstance) {
     dbInstance.close();

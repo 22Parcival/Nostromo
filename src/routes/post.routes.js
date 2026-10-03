@@ -3,10 +3,6 @@ import { postService } from '../services/post.service.js';
 
 const router = Router();
 
-/**
- * GET /api/posts
- * Récupère la liste des articles publiés pour le site public.
- */
 router.get('/', (req, res) => {
   try {
     const posts = postService.getAll({ publishedOnly: true });
@@ -17,10 +13,6 @@ router.get('/', (req, res) => {
   }
 });
 
-/**
- * GET /api/posts/:slug
- * Récupère un article publié par son slug.
- */
 router.get('/:slug', (req, res) => {
   try {
     const { slug } = req.params;

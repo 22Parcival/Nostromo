@@ -3,18 +3,10 @@ import { postService } from '../services/post.service.js';
 
 const router = Router();
 
-/**
- * GET /api/admin/me
- * Renvoie les informations de l'administrateur connecté.
- */
 router.get('/me', (req, res) => {
   res.json({ user: req.session.user });
 });
 
-/**
- * GET /api/admin/posts
- * Récupère tous les articles (brouillons et publiés).
- */
 router.get('/posts', (req, res) => {
   try {
     const posts = postService.getAll({ publishedOnly: false });
@@ -25,10 +17,6 @@ router.get('/posts', (req, res) => {
   }
 });
 
-/**
- * GET /api/admin/posts/:id
- * Récupère un article par son ID (admin).
- */
 router.get('/posts/:id', (req, res) => {
   try {
     const post = postService.getById(req.params.id);
@@ -42,10 +30,6 @@ router.get('/posts/:id', (req, res) => {
   }
 });
 
-/**
- * POST /api/admin/posts
- * Crée un nouvel article.
- */
 router.post('/posts', (req, res) => {
   try {
     const { title, slug, summary, content, status, cover_image } = req.body;
@@ -75,10 +59,6 @@ router.post('/posts', (req, res) => {
   }
 });
 
-/**
- * PUT /api/admin/posts/:id
- * Met à jour un article existant.
- */
 router.put('/posts/:id', (req, res) => {
   try {
     const { title, slug, summary, content, status, cover_image } = req.body;
@@ -105,10 +85,6 @@ router.put('/posts/:id', (req, res) => {
   }
 });
 
-/**
- * DELETE /api/admin/posts/:id
- * Supprime un article.
- */
 router.delete('/posts/:id', (req, res) => {
   try {
     const success = postService.delete(req.params.id);
