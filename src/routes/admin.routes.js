@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { postService } from '../services/post.service.js';
 import { userService } from '../services/user.service.js';
+import { uploadImage } from '../middlewares/upload.middleware.js';
 
 const router = Router();
 
@@ -128,6 +129,27 @@ router.delete('/posts/:id', (req, res) => {
     console.error('[ADMIN API ERROR] Delete post:', error);
     res.status(500).json({ error: 'Erreur lors de la suppression de l\'article.' });
   }
+});
+
+router.post('/upload', (req, res) => {
+  uploadImage.single('image')(req, res, (err) => {
+    if (err) {
+      console.error('[ADMIN UPLOAD ERROR]:', err);
+      return res.status(400).json({ error: err.message || 'Erreur lors du téléversement de l\'image.' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'Aucun fichier fourni.' });
+    }
+
+    const fileUrl = `/uploads/${req.file.filename}`;
+    res.json({
+      url: fileUrl,
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      size: req.file.size
+    });
+  });
 });
 
 export default router;

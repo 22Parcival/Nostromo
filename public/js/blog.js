@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const app = document.getElementById('app');
+  let currentViewMode = localStorage.getItem('nostromo_view_mode') || 'grid';
 
   const handleRoute = async () => {
     const hash = window.location.hash;
@@ -28,10 +29,55 @@ document.addEventListener('DOMContentLoaded', async () => {
         <p>Articles rédigés en Markdown et propulsés par Nostromo CMS.</p>
       </section>
       ${filterBanner}
-      <div id="posts-container" class="posts-grid">
-        <p style="text-align: center; color: var(--text-muted);">Chargement des articles...</p>
+      
+      <div class="posts-header">
+        <h3 class="section-title">Articles récents</h3>
+        <div class="view-switcher" role="group" aria-label="Mode d'affichage">
+          <button class="view-btn ${currentViewMode === 'grid' ? 'active' : ''}" data-view="grid" title="Affichage en mosaïque">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>Mosaïque</span>
+          </button>
+          <button class="view-btn ${currentViewMode === 'list' ? 'active' : ''}" data-view="list" title="Affichage en liste">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="8" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="8" y1="18" x2="21" y2="18"></line>
+              <line x1="3" y1="6" x2="3.01" y2="6"></line>
+              <line x1="3" y1="12" x2="3.01" y2="12"></line>
+              <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+            <span>Liste</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="posts-container" class="posts-grid mode-${currentViewMode}">
+        <p style="text-align: center; color: var(--text-muted); grid-column: 1 / -1;">Chargement des articles...</p>
       </div>
     `;
+
+    // Attacher les écouteurs du sélecteur de vue
+    const viewButtons = app.querySelectorAll('.view-btn');
+    viewButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const view = btn.getAttribute('data-view');
+        currentViewMode = view;
+        localStorage.setItem('nostromo_view_mode', view);
+
+        viewButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const container = document.getElementById('posts-container');
+        if (container) {
+          container.className = `posts-grid mode-${view}`;
+        }
+      });
+    });
 
     try {
       const url = filterAuthorId ? `/api/posts?author=${encodeURIComponent(filterAuthorId)}` : '/api/posts';
@@ -41,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const container = document.getElementById('posts-container');
       if (posts.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Aucun article publié pour le moment.</p>';
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted); grid-column: 1 / -1;">Aucun article publié pour le moment.</p>';
         return;
       }
 
@@ -53,21 +99,30 @@ document.addEventListener('DOMContentLoaded', async () => {
           </a>
         ` : '';
 
+        const coverHtml = post.cover_image ? `
+          <div class="post-card-cover" style="background-image: url('${escapeHtml(post.cover_image)}')"></div>
+        ` : '';
+
         return `
           <article class="post-card" onclick="location.hash='#/article/${post.slug}'">
-            <h3>${escapeHtml(post.title)}</h3>
-            <div class="post-meta">
-              <span>Publié le ${new Date(post.published_at || post.created_at).toLocaleDateString('fr-FR')}</span>
-              ${authorHtml}
+            ${coverHtml}
+            <div class="post-card-body">
+              <h3>${escapeHtml(post.title)}</h3>
+              <div class="post-meta">
+                <span>Publié le ${new Date(post.published_at || post.created_at).toLocaleDateString('fr-FR')}</span>
+                ${authorHtml}
+              </div>
+              <p class="post-summary">${escapeHtml(post.summary || 'Lire l\'article complet...')}</p>
+              <div class="post-card-footer">
+                <a href="#/article/${post.slug}" class="btn">Lire l'article →</a>
+              </div>
             </div>
-            <p class="post-summary">${escapeHtml(post.summary || 'Lire l\'article complet...')}</p>
-            <a href="#/article/${post.slug}" class="btn">Lire l'article →</a>
           </article>
         `;
       }).join('');
     } catch (err) {
       console.error(err);
-      document.getElementById('posts-container').innerHTML = '<p style="text-align: center; color: #f87171;">Impossible de charger les articles.</p>';
+      document.getElementById('posts-container').innerHTML = '<p style="text-align: center; color: #f87171; grid-column: 1 / -1;">Impossible de charger les articles.</p>';
     }
   }
 
@@ -98,6 +153,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         </a>
       ` : '';
 
+      const coverHtml = post.cover_image ? `
+        <img src="${escapeHtml(post.cover_image)}" alt="${escapeHtml(post.title)}" class="article-cover-image">
+      ` : '';
+
       app.innerHTML = `
         <div class="article-container">
           <a href="#" style="color: var(--primary); text-decoration: none; display: inline-block; margin-bottom: 1.5rem;">← Retour aux articles</a>
@@ -106,6 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <span>Publié le ${new Date(post.published_at || post.created_at).toLocaleDateString('fr-FR')}</span>
             ${authorHtml}
           </div>
+          ${coverHtml}
           <hr>
           <div class="markdown-body">
             ${cleanHtml}

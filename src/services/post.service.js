@@ -79,8 +79,8 @@ export const postService = {
   getBySlug(slug, publishedOnly = false) {
     const db = getDb();
     const query = publishedOnly
-      ? 'SELECT * FROM posts WHERE slug = ? AND status = "published"'
-      : 'SELECT * FROM posts WHERE slug = ?';
+      ? "SELECT * FROM posts WHERE slug = ? AND status = 'published'"
+      : "SELECT * FROM posts WHERE slug = ?";
     const stmt = db.prepare(query);
     return stmt.get(slug);
   },
