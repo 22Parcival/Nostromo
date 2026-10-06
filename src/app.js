@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.routes.js';
 import postRoutes from './routes/post.routes.js';
 import adminRoutes from './routes/admin.routes.js';
-import { requireAdmin } from './middlewares/auth.middleware.js';
+import { requireAuth } from './middlewares/auth.middleware.js';
 import { initDatabase } from './config/database.js';
 
 dotenv.config();
@@ -35,13 +35,14 @@ app.use(session({
 
 app.use(express.static(path.join(__dirname, '../public')));
 
-app.use('/admin', express.static(path.join(__dirname, '../public/admin')));
+// Accès au panel protégé par authentification
+app.use('/admin', requireAuth, express.static(path.join(__dirname, '../public/admin')));
 
 app.use('/api/posts', postRoutes);
 
 app.use('/auth', authRoutes);
 
-app.use('/api/admin', requireAdmin, adminRoutes);
+app.use('/api/admin', requireAuth, adminRoutes);
 
 app.use((req, res) => {
   if (req.accepts('html')) {

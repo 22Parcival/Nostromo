@@ -29,6 +29,15 @@ export function initDatabase(customPath) {
   dbInstance.pragma('busy_timeout = 5000');
 
   dbInstance.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      username TEXT NOT NULL,
+      avatar TEXT,
+      role TEXT NOT NULL DEFAULT 'author' CHECK(role IN ('admin', 'author')),
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS posts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
@@ -39,6 +48,7 @@ export function initDatabase(customPath) {
       cover_image TEXT DEFAULT '',
       author_id TEXT DEFAULT '',
       author_name TEXT DEFAULT '',
+      author_avatar TEXT DEFAULT '',
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
       published_at TEXT
@@ -47,7 +57,14 @@ export function initDatabase(customPath) {
     CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
     CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
     CREATE INDEX IF NOT EXISTS idx_posts_published_at ON posts(published_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_posts_author_id ON posts(author_id);
   `);
+
+  try {
+    dbInstance.exec("ALTER TABLE posts ADD COLUMN author_avatar TEXT DEFAULT ''");
+  } catch (e) {
+    // La colonne existe déjà, ignorer l'erreur
+  }
 
   return dbInstance;
 }

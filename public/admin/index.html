@@ -21,8 +21,12 @@
   <div class="admin-layout">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h3 style="margin: 0; font-size: 1rem;">Articles</h3>
+        <h3 id="sidebar-title" style="margin: 0; font-size: 1rem;">Mes articles</h3>
         <button id="new-post-btn" class="btn" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">+ Nouvel article</button>
+      </div>
+      <div id="filter-tabs" class="filter-tabs" style="display: none;">
+        <button class="filter-tab active" data-filter="mine">Mes articles</button>
+        <button class="filter-tab" data-filter="all">Tous les articles</button>
       </div>
       <ul id="posts-list" class="posts-list">
       </ul>
@@ -31,6 +35,7 @@
     <main class="editor-area">
       <form id="post-form" class="editor-form">
         <input type="hidden" id="post-id">
+        <div id="post-author-banner" class="post-author-banner" style="display: none;"></div>
         
         <div class="form-row">
           <div>

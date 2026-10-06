@@ -1,11 +1,16 @@
 document.addEventListener('DOMContentLoaded', async () => {
   let posts = [];
   let currentPostId = null;
+  let currentUser = null;
+  let currentFilter = 'mine'; // 'mine' ou 'all'
 
   const userInfoEl = document.getElementById('user-info');
+  const sidebarTitleEl = document.getElementById('sidebar-title');
+  const filterTabsEl = document.getElementById('filter-tabs');
   const postsListEl = document.getElementById('posts-list');
   const postForm = document.getElementById('post-form');
   const postIdInput = document.getElementById('post-id');
+  const postAuthorBanner = document.getElementById('post-author-banner');
   const titleInput = document.getElementById('title');
   const slugInput = document.getElementById('slug');
   const statusSelect = document.getElementById('status');
@@ -19,14 +24,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     const meRes = await fetch('/api/admin/me');
     if (!meRes.ok) throw new Error('Non authentifié');
     const data = await meRes.json();
+    currentUser = data.user;
+
+    const roleLabel = currentUser.role === 'admin' ? 'Administrateur' : 'Auteur';
     userInfoEl.innerHTML = `
-      <span>${escapeHtml(data.user.username)}</span>
-      ${data.user.avatar ? `<img src="${data.user.avatar}" alt="Avatar" class="user-avatar">` : ''}
+      <span>${escapeHtml(currentUser.username)}</span>
+      <span class="role-badge ${currentUser.role}">${roleLabel}</span>
+      ${currentUser.avatar ? `<img src="${currentUser.avatar}" alt="Avatar" class="user-avatar">` : ''}
       <a href="/auth/logout" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.3rem 0.6rem;">Déconnexion</a>
     `;
+
+    // Si administrateur, activer les onglets de filtrage
+    if (currentUser.role === 'admin') {
+      filterTabsEl.style.display = 'flex';
+      setupFilterTabs();
+    } else {
+      sidebarTitleEl.textContent = 'Mes articles';
+    }
   } catch (err) {
     window.location.href = '/auth/discord';
     return;
+  }
+
+  function setupFilterTabs() {
+    const tabs = filterTabsEl.querySelectorAll('.filter-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', async () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilter = tab.getAttribute('data-filter');
+        sidebarTitleEl.textContent = currentFilter === 'all' ? 'Tous les articles' : 'Mes articles';
+        await loadPosts();
+      });
+    });
   }
 
   function updatePreview() {
@@ -39,7 +69,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function loadPosts(selectId = null) {
     try {
-      const res = await fetch('/api/admin/posts');
+      const url = currentUser.role === 'admin'
+        ? `/api/admin/posts?filter=${currentFilter}`
+        : '/api/admin/posts';
+
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Erreur de chargement');
       posts = await res.json();
 
@@ -62,15 +96,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderPostsList() {
-    postsListEl.innerHTML = posts.map(post => `
-      <li class="post-item ${post.id === currentPostId ? 'active' : ''}" data-id="${post.id}">
-        <div class="post-item-title">${escapeHtml(post.title)}</div>
-        <div class="post-item-meta">
-          <span class="badge ${post.status}">${post.status === 'published' ? 'Publié' : 'Brouillon'}</span>
-          <span>${new Date(post.updated_at || post.created_at).toLocaleDateString('fr-FR')}</span>
-        </div>
-      </li>
-    `).join('');
+    if (posts.length === 0) {
+      postsListEl.innerHTML = `
+        <li style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+          Aucun article pour le moment.<br>Cliquez sur "+ Nouvel article" pour commencer.
+        </li>
+      `;
+      return;
+    }
+
+    postsListEl.innerHTML = posts.map(post => {
+      const isMine = post.author_id === currentUser.id;
+      const showAuthor = currentUser.role === 'admin' && currentFilter === 'all';
+
+      return `
+        <li class="post-item ${post.id === currentPostId ? 'active' : ''}" data-id="${post.id}">
+          <div class="post-item-title">${escapeHtml(post.title)}</div>
+          <div class="post-item-meta">
+            <span class="badge ${post.status}">${post.status === 'published' ? 'Publié' : 'Brouillon'}</span>
+            <span>${new Date(post.updated_at || post.created_at).toLocaleDateString('fr-FR')}</span>
+          </div>
+          ${showAuthor ? `
+            <div class="author-tag">
+              ${post.author_avatar ? `<img src="${escapeHtml(post.author_avatar)}" class="author-tag-avatar">` : ''}
+              <span>${escapeHtml(post.author_name || 'Inconnu')} ${isMine ? '(Vous)' : ''}</span>
+            </div>
+          ` : ''}
+        </li>
+      `;
+    }).join('');
 
     document.querySelectorAll('.post-item').forEach(li => {
       li.addEventListener('click', () => {
@@ -91,6 +145,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     contentInput.value = post.content || '';
     deleteBtn.style.display = 'block';
 
+    const isMine = post.author_id === currentUser.id;
+    if (postAuthorBanner) {
+      postAuthorBanner.style.display = 'flex';
+      postAuthorBanner.innerHTML = `
+        <span>✍️ Auteur : <strong>${escapeHtml(post.author_name || 'Inconnu')}</strong> ${isMine ? '(Vous)' : ''}</span>
+        ${post.published_at ? `<span>• Publié le ${new Date(post.published_at).toLocaleDateString('fr-FR')}</span>` : ''}
+      `;
+    }
+
     updatePreview();
     renderPostsList();
   }
@@ -104,6 +167,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     summaryInput.value = '';
     contentInput.value = '# Nouvel article\n\nCommencez à rédiger ici...';
     deleteBtn.style.display = 'none';
+
+    if (postAuthorBanner) {
+      postAuthorBanner.style.display = 'flex';
+      postAuthorBanner.innerHTML = `<span>✍️ Nouvel article rédigé par <strong>${escapeHtml(currentUser.username)}</strong></span>`;
+    }
 
     updatePreview();
     renderPostsList();
@@ -155,7 +223,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         method: 'DELETE'
       });
 
-      if (!res.ok) throw new Error('Erreur lors de la suppression');
+      if (!res.ok) {
+        const errJson = await res.json();
+        throw new Error(errJson.error || 'Erreur lors de la suppression');
+      }
 
       alert('Article supprimé.');
       currentPostId = null;

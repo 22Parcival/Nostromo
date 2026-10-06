@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import crypto from 'crypto';
+import { userService } from '../services/user.service.js';
 
 const router = Router();
 
@@ -62,41 +63,28 @@ router.get('/discord/callback', async (req, res) => {
 
     const adminIds = (process.env.ADMIN_DISCORD_IDS || '')
       .split(',')
-      .map(id => id.trim());
+      .map(id => id.trim())
+      .filter(Boolean);
 
-    if (!adminIds.includes(discordUser.id)) {
-      console.warn(`[AUTH] Accès refusé pour l'ID Discord non autorisé : ${discordUser.id} (${discordUser.username})`);
-      return res.status(403).send(`
-        <!DOCTYPE html>
-        <html lang="fr">
-        <head>
-          <meta charset="UTF-8">
-          <title>403 - Accès Refusé</title>
-          <style>
-            body { font-family: system-ui; background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-            .card { background: #1e293b; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; max-width: 400px; }
-            h1 { color: #f87171; margin-top: 0; }
-            a { color: #38bdf8; text-decoration: none; display: inline-block; margin-top: 1.5rem; }
-            a:hover { text-decoration: underline; }
-          </style>
-        </head>
-        <body>
-          <div class="card">
-            <h1>403 - Accès Refusé</h1>
-            <p>Votre identifiant Discord (<code>${discordUser.id}</code>) ne figure pas dans la liste blanche des administrateurs de ce blog.</p>
-            <a href="/">← Retour au site public</a>
-          </div>
-        </body>
-        </html>
-      `);
-    }
+    const isSuperAdmin = adminIds.includes(discordUser.id);
 
-    req.session.user = {
+    const avatarUrl = discordUser.avatar
+      ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
+      : null;
+
+    // Enregistre ou met à jour l'utilisateur en BDD
+    const userRecord = userService.upsert({
       id: discordUser.id,
       username: discordUser.username,
-      avatar: discordUser.avatar
-        ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
-        : null
+      avatar: avatarUrl,
+      role: isSuperAdmin ? 'admin' : undefined
+    });
+
+    req.session.user = {
+      id: userRecord.id,
+      username: userRecord.username,
+      avatar: userRecord.avatar,
+      role: userRecord.role
     };
 
     res.redirect('/admin');

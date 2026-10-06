@@ -6,24 +6,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (hash.startsWith('#/article/')) {
       const slug = hash.replace('#/article/', '');
       await renderArticle(slug);
+    } else if (hash.startsWith('#/auteur/')) {
+      const authorId = hash.replace('#/auteur/', '');
+      await renderHome(authorId);
     } else {
       await renderHome();
     }
   };
 
-  async function renderHome() {
+  async function renderHome(filterAuthorId = null) {
+    const filterBanner = filterAuthorId ? `
+      <div class="filter-banner">
+        <span>Filtré par auteur</span>
+        <a href="#" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.25rem 0.6rem;">Voir tous les articles</a>
+      </div>
+    ` : '';
+
     app.innerHTML = `
       <section class="hero">
         <h2>Bienvenue sur le Blog</h2>
         <p>Articles rédigés en Markdown et propulsés par Nostromo CMS.</p>
       </section>
+      ${filterBanner}
       <div id="posts-container" class="posts-grid">
         <p style="text-align: center; color: var(--text-muted);">Chargement des articles...</p>
       </div>
     `;
 
     try {
-      const res = await fetch('/api/posts');
+      const url = filterAuthorId ? `/api/posts?author=${encodeURIComponent(filterAuthorId)}` : '/api/posts';
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Erreur réseau');
       const posts = await res.json();
 
@@ -33,17 +45,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      container.innerHTML = posts.map(post => `
-        <article class="post-card" onclick="location.hash='#/article/${post.slug}'">
-          <h3>${escapeHtml(post.title)}</h3>
-          <div class="post-meta">
-            Publié le ${new Date(post.published_at || post.created_at).toLocaleDateString('fr-FR')} 
-            ${post.author_name ? `• par ${escapeHtml(post.author_name)}` : ''}
-          </div>
-          <p class="post-summary">${escapeHtml(post.summary || 'Lire l\'article complet...')}</p>
-          <a href="#/article/${post.slug}" class="btn">Lire l'article →</a>
-        </article>
-      `).join('');
+      container.innerHTML = posts.map(post => {
+        const authorHtml = post.author_name ? `
+          <a href="#/auteur/${post.author_id}" class="author-chip" onclick="event.stopPropagation();">
+            ${post.author_avatar ? `<img src="${escapeHtml(post.author_avatar)}" alt="${escapeHtml(post.author_name)}">` : ''}
+            <span>${escapeHtml(post.author_name)}</span>
+          </a>
+        ` : '';
+
+        return `
+          <article class="post-card" onclick="location.hash='#/article/${post.slug}'">
+            <h3>${escapeHtml(post.title)}</h3>
+            <div class="post-meta">
+              <span>Publié le ${new Date(post.published_at || post.created_at).toLocaleDateString('fr-FR')}</span>
+              ${authorHtml}
+            </div>
+            <p class="post-summary">${escapeHtml(post.summary || 'Lire l\'article complet...')}</p>
+            <a href="#/article/${post.slug}" class="btn">Lire l'article →</a>
+          </article>
+        `;
+      }).join('');
     } catch (err) {
       console.error(err);
       document.getElementById('posts-container').innerHTML = '<p style="text-align: center; color: #f87171;">Impossible de charger les articles.</p>';
@@ -59,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         app.innerHTML = `
           <div style="text-align: center;">
             <h2>Article introuvable</h2>
-            <p>L'article demandée n'existe pas ou n'est plus publié.</p>
+            <p>L'article demandé n'existe pas ou n'est plus publié.</p>
             <a href="#" class="btn">← Retour à l'accueil</a>
           </div>
         `;
@@ -70,13 +91,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       const rawHtml = marked.parse(post.content);
       const cleanHtml = DOMPurify.sanitize(rawHtml);
 
+      const authorHtml = post.author_name ? `
+        <a href="#/auteur/${post.author_id}" class="author-chip">
+          ${post.author_avatar ? `<img src="${escapeHtml(post.author_avatar)}" alt="${escapeHtml(post.author_name)}">` : ''}
+          <span>${escapeHtml(post.author_name)}</span>
+        </a>
+      ` : '';
+
       app.innerHTML = `
         <div class="article-container">
           <a href="#" style="color: var(--primary); text-decoration: none; display: inline-block; margin-bottom: 1.5rem;">← Retour aux articles</a>
           <h1>${escapeHtml(post.title)}</h1>
           <div class="post-meta">
-            Publié le ${new Date(post.published_at || post.created_at).toLocaleDateString('fr-FR')} 
-            ${post.author_name ? `• par ${escapeHtml(post.author_name)}` : ''}
+            <span>Publié le ${new Date(post.published_at || post.created_at).toLocaleDateString('fr-FR')}</span>
+            ${authorHtml}
           </div>
           <hr>
           <div class="markdown-body">

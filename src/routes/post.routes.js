@@ -5,7 +5,11 @@ const router = Router();
 
 router.get('/', (req, res) => {
   try {
-    const posts = postService.getAll({ publishedOnly: true });
+    const { author } = req.query;
+    const posts = postService.getAll({
+      publishedOnly: true,
+      authorId: author || null
+    });
     res.json(posts);
   } catch (error) {
     console.error('[API ERROR] Get posts:', error);

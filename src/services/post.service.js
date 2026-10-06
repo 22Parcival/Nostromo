@@ -12,6 +12,23 @@ export function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
+export function generateUniqueSlug(baseText, excludeId = null) {
+  const db = getDb();
+  let baseSlug = slugify(baseText);
+  if (!baseSlug) baseSlug = 'article';
+
+  let slug = baseSlug;
+  let counter = 1;
+  while (true) {
+    const existing = db.prepare('SELECT id FROM posts WHERE slug = ?').get(slug);
+    if (!existing || (excludeId && existing.id === Number(excludeId))) {
+      return slug;
+    }
+    counter++;
+    slug = `${baseSlug}-${counter}`;
+  }
+}
+
 export const postService = {
   create({
     title,
@@ -21,16 +38,20 @@ export const postService = {
     status = 'draft',
     cover_image = '',
     author_id = '',
-    author_name = ''
+    author_name = '',
+    author_avatar = ''
   }) {
     const db = getDb();
-    const finalSlug = slugify(slug && slug.trim() !== '' ? slug : title);
+    const finalSlug = slug && slug.trim() !== ''
+      ? generateUniqueSlug(slug)
+      : generateUniqueSlug(title);
+
     const publishedAt = status === 'published' ? new Date().toISOString() : null;
 
     const stmt = db.prepare(`
       INSERT INTO posts (
-        title, slug, summary, content, status, cover_image, author_id, author_name, published_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        title, slug, summary, content, status, cover_image, author_id, author_name, author_avatar, published_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -42,6 +63,7 @@ export const postService = {
       cover_image,
       author_id,
       author_name,
+      author_avatar,
       publishedAt
     );
 
@@ -63,21 +85,35 @@ export const postService = {
     return stmt.get(slug);
   },
 
-  getAll({ publishedOnly = false, limit = 50, offset = 0 } = {}) {
+  getAll({ publishedOnly = false, authorId = null, limit = 50, offset = 0 } = {}) {
     const db = getDb();
-    const query = publishedOnly
-      ? `SELECT id, title, slug, summary, status, cover_image, author_name, created_at, published_at
-         FROM posts
-         WHERE status = 'published'
-         ORDER BY published_at DESC, created_at DESC
-         LIMIT ? OFFSET ?`
-      : `SELECT id, title, slug, summary, status, cover_image, author_name, created_at, updated_at, published_at
-         FROM posts
-         ORDER BY created_at DESC
-         LIMIT ? OFFSET ?`;
+    const whereClauses = [];
+    const params = [];
 
+    if (publishedOnly) {
+      whereClauses.push("status = 'published'");
+    }
+    if (authorId) {
+      whereClauses.push("author_id = ?");
+      params.push(authorId);
+    }
+
+    const where = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+    const order = publishedOnly
+      ? 'ORDER BY published_at DESC, created_at DESC'
+      : 'ORDER BY created_at DESC';
+
+    const query = `
+      SELECT id, title, slug, summary, status, cover_image, author_id, author_name, author_avatar, created_at, updated_at, published_at
+      FROM posts
+      ${where}
+      ${order}
+      LIMIT ? OFFSET ?
+    `;
+
+    params.push(limit, offset);
     const stmt = db.prepare(query);
-    return stmt.all(limit, offset);
+    return stmt.all(...params);
   },
 
   update(id, fields = {}) {
@@ -95,8 +131,9 @@ export const postService = {
       values.push(fields.title);
     }
     if (fields.slug !== undefined) {
+      const finalSlug = generateUniqueSlug(fields.slug, id);
       updates.push('slug = ?');
-      values.push(slugify(fields.slug));
+      values.push(finalSlug);
     }
     if (fields.summary !== undefined) {
       updates.push('summary = ?');
