@@ -4,7 +4,7 @@
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Node.js** ≥ 18 (LTS) and **npm** (or `pnpm`/`yarn`).
 - **Git** to clone the repository.
@@ -13,7 +13,7 @@
 
 ---
 
-## 1️⃣ Clone the repository
+## 1️ Clone the repository
 
 ```bash
 git clone https://github.com/your-org/nostromo.git
@@ -25,7 +25,7 @@ cd nostromo
 
 ---
 
-## 2️⃣ Install dependencies
+## 2️ Install dependencies
 
 ```bash
 npm ci   # installs exact versions from package‑lock.json
@@ -36,7 +36,7 @@ npm ci   # installs exact versions from package‑lock.json
 
 ---
 
-## 3️⃣ Configure environment variables
+## 3️ Configure environment variables
 
 Create a **`.env`** file at the project root:
 
@@ -54,7 +54,7 @@ CORS_ORIGIN=https://my‑other‑site.com   # optional
 
 ---
 
-## 4️⃣ Run the server (development)
+## 4️ Run the server (development)
 
 ```bash
 npm run dev   # starts `nodemon` – hot‑reload for dev
@@ -71,7 +71,7 @@ Open <http://localhost:3000/admin> to verify the panel loads with the new dark/l
 
 ---
 
-## 5️⃣ Embedding the admin panel into another site
+## 5️ Embedding the admin panel into another site
 
 ### 5.1 Copy the assets
 
@@ -108,7 +108,7 @@ Both approaches rely on the same client‑side code; choose the one that fits yo
 
 ---
 
-## 6️⃣ API connectivity
+## 6️ API connectivity
 
 The admin UI talks to the following endpoints (all prefixed with `/api/admin/`):
 
@@ -140,7 +140,7 @@ fetch('/api/admin/me', { credentials: 'include' })
 
 ---
 
-## 7️⃣ Authentication
+## 7️ Authentication
 
 The panel expects a session cookie created by the **Discord OAuth** flow (`/auth/discord`). If you embed the panel on a site that already shares the same domain, the cookie will be sent automatically.
 
@@ -148,7 +148,7 @@ If you prefer a token‑based approach, replace the session middleware with a JW
 
 ---
 
-## 8️⃣ Database – where articles live
+## 8️ Database – where articles live
 
 - The data lives in **SQLite** (`src/config/database.sqlite`).
 - Schema is defined in `src/models/post.model.js` (table `posts`).
@@ -157,7 +157,7 @@ If you prefer a token‑based approach, replace the session middleware with a JW
 
 ---
 
-## 9️⃣ Optional – Dark / Light theme persistence
+## 9️ Optional – Dark / Light theme persistence
 
 The UI reads `localStorage.getItem('nostromo_theme')`. Users can toggle the theme with the button in the header; the choice is saved automatically and works across page reloads, iframes, or separate sites (as long as they share the same origin). No extra work required.
 
@@ -184,7 +184,7 @@ The UI reads `localStorage.getItem('nostromo_theme')`. Users can toggle the them
 
 ---
 
-## 📦 Deploying to production
+## Deploying to production
 
 1. Build (optional) – the UI is pure HTML/CSS/JS, so no build step is needed.
 2. Use a process manager such as **PM2**:
@@ -202,7 +202,7 @@ The UI reads `localStorage.getItem('nostromo_theme')`. Users can toggle the them
 
 ---
 
-## 🙋‍♀️ Need help?
+## Need help?
 
 - Open an issue on the repository.
 - Join the Discord channel **#dev‑support** (link in the repo README).
