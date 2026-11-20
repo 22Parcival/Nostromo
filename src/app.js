@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -19,19 +19,23 @@ const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Middleware CORS
+// Origins acceptÃ©es en dÃ©veloppement et production
+const ALLOWED_ORIGIN_REGEX = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/;
 const ALLOWED_ORIGINS = [
   'http://127.0.0.1:5173',
   'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://localhost:3000',
   'http://127.0.0.1:5500',
+  'http://127.0.0.1:5501',
+  'http://localhost:5501',
   'http://localhost:5500',
   'https://parcival.fr'
 ];
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+  if (origin && (ALLOWED_ORIGINS.includes(origin) || ALLOWED_ORIGIN_REGEX.test(origin))) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
