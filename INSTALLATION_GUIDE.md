@@ -202,3 +202,19 @@ The UI reads `localStorage.getItem('nostromo_theme')`. Users can toggle the them
 
 ---
 
+<<<<<<< HEAD
+=======
+## Need help?
+
+- Open an issue on the repository.
+- Join the Discord channel **#dev‑support** (link in the repo README).
+- Refer to the source files for deeper details:
+  - [`public/admin/index.html`](file:///c:/Users/Parcival/Desktop/Dev/Nostromo/public/admin/index.html)
+  - [`public/admin/admin.css`](file:///c:/Users/Parcival/Desktop/Dev/Nostromo/public/admin/admin.css)
+  - [`public/admin/admin.js`](file:///c:/Users/Parcival/Desktop/Dev/Nostromo/public/admin/admin.js)
+  - API routes: [`src/routes/admin.routes.js`](file:///c:/Users/Parcival/Desktop/Dev/Nostromo/src/routes/admin.routes.js)
+
+---
+
+*Happy hacking!*
+>>>>>>> 943f936b8b87ac09a7cb292e6e3572d02c212062
