@@ -32,6 +32,19 @@
         <span class="brand-title">Nostromo</span>
         <span class="brand-badge">Studio</span>
       </a>
+
+      <!-- Navigation principale par onglets -->
+      <nav class="main-nav-tabs" role="tablist">
+        <button id="nav-tab-blog" class="main-nav-tab active" type="button" role="tab" aria-selected="true" data-tab="blog">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span>Articles de Blog</span>
+        </button>
+        <button id="nav-tab-site" class="main-nav-tab" type="button" role="tab" aria-selected="false" data-tab="site">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          <span>Configuration parcival.fr</span>
+        </button>
+      </nav>
+
       <a href="/" target="_blank" class="btn btn-ghost btn-sm" title="Voir le blog public dans un nouvel onglet">
         <span>Voir le site</span>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
@@ -224,6 +237,95 @@
       </form>
     </main>
   </div>
+
+  <!-- Section Onglet 2 : Configuration parcival.fr -->
+  <div id="site-config-section" class="site-config-layout" style="display: none;">
+    <div class="site-config-container">
+      <div class="site-config-header">
+        <div>
+          <h2 class="config-page-title">Configuration parcival.fr</h2>
+          <p class="config-page-desc">Gérez les données dynamiques de la page d'accueil de votre site principal.</p>
+        </div>
+        <div class="config-actions">
+          <span id="site-config-status" class="save-indicator"></span>
+          <button id="save-site-config-btn" type="button" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Enregistrer les modifications</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="config-cards-grid">
+        <!-- Carte 1: Message d'accueil / Bonjour -->
+        <section class="config-card">
+          <div class="config-card-header">
+            <div class="config-card-title">
+              <span class="card-icon">👋</span>
+              <h3>Message d'accueil ("Bonjour !")</h3>
+            </div>
+            <span class="badge-chip">Accueil</span>
+          </div>
+          <div class="config-card-body">
+            <label for="cfg-welcome-text" class="config-label">Texte de présentation</label>
+            <textarea id="cfg-welcome-text" class="form-textarea" rows="3" placeholder="Bienvenue sur mon site internet..."></textarea>
+            <span class="field-hint">Ce texte s'affiche en en-tête sur la page principale de parcival.fr.</span>
+          </div>
+        </section>
+
+        <!-- Carte 2: Projet à la une -->
+        <section class="config-card">
+          <div class="config-card-header">
+            <div class="config-card-title">
+              <span class="card-icon">⭐</span>
+              <h3>Projet "À la une"</h3>
+            </div>
+            <span class="badge-chip highlight">Featured</span>
+          </div>
+          <div class="config-card-body">
+            <div class="form-row-2">
+              <div>
+                <label for="cfg-featured-title" class="config-label">Titre du projet</label>
+                <input type="text" id="cfg-featured-title" class="form-input" placeholder="Ex: Square_root">
+              </div>
+              <div>
+                <label for="cfg-featured-badge" class="config-label">Badge</label>
+                <input type="text" id="cfg-featured-badge" class="form-input" placeholder="Ex: NOUVEAU">
+              </div>
+            </div>
+            <div>
+              <label for="cfg-featured-desc" class="config-label">Description</label>
+              <textarea id="cfg-featured-desc" class="form-textarea" rows="2" placeholder="Format d'image expérimental..."></textarea>
+            </div>
+            <div>
+              <label for="cfg-featured-link" class="config-label">Lien / URL</label>
+              <input type="text" id="cfg-featured-link" class="form-input" placeholder="https://... ou #">
+            </div>
+          </div>
+        </section>
+
+        <!-- Carte 3: Liste "Mes projets" -->
+        <section class="config-card config-card-wide">
+          <div class="config-card-header">
+            <div class="config-card-title">
+              <span class="card-icon">📁</span>
+              <h3>Liste "Mes projets"</h3>
+            </div>
+            <button type="button" id="add-project-btn" class="btn btn-secondary btn-sm">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Ajouter un projet</span>
+            </button>
+          </div>
+          <div class="config-card-body">
+            <div id="projects-items-container" class="projects-items-list">
+              <!-- Rendu dynamique par JS -->
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-notification" class="toast-notification" style="display: none;"></div>
 
   <script src="./admin.js"></script>
 </body>

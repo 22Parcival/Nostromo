@@ -70,9 +70,12 @@ export const postService = {
     return this.getById(result.lastInsertRowid);
   },
 
-  getById(id) {
+  getById(id, publishedOnly = false) {
     const db = getDb();
-    const stmt = db.prepare('SELECT * FROM posts WHERE id = ?');
+    const query = publishedOnly
+      ? "SELECT * FROM posts WHERE id = ? AND status = 'published'"
+      : "SELECT * FROM posts WHERE id = ?";
+    const stmt = db.prepare(query);
     return stmt.get(id);
   },
 

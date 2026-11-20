@@ -3,14 +3,17 @@ import crypto from 'crypto';
 import { userService } from '../services/user.service.js';
 
 const router = Router();
+const ALLOWED_DISCORD_ID = "751472879421358182";
 
 router.get('/discord', (req, res) => {
   const state = crypto.randomBytes(16).toString('hex');
   req.session.oauthState = state;
 
+  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http://127.0.0.1:3000/api/auth/discord/callback';
+
   const params = new URLSearchParams({
     client_id: process.env.DISCORD_CLIENT_ID,
-    redirect_uri: process.env.DISCORD_REDIRECT_URI,
+    redirect_uri: redirectUri,
     response_type: 'code',
     scope: 'identify',
     state: state
@@ -22,7 +25,7 @@ router.get('/discord', (req, res) => {
 router.get('/discord/callback', async (req, res) => {
   const { code, state } = req.query;
 
-  if (!state || state !== req.session.oauthState) {
+  if (!state || state !== req.session?.oauthState) {
     return res.status(400).send('Erreur CSRF : State invalide ou expiré.');
   }
   delete req.session.oauthState;
@@ -30,6 +33,8 @@ router.get('/discord/callback', async (req, res) => {
   if (!code) {
     return res.status(400).send('Code d\'autorisation manquant.');
   }
+
+  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http://127.0.0.1:3000/api/auth/discord/callback';
 
   try {
     const tokenResponse = await fetch('https://discord.com/api/v10/oauth2/token', {
@@ -40,7 +45,7 @@ router.get('/discord/callback', async (req, res) => {
         client_secret: process.env.DISCORD_CLIENT_SECRET,
         grant_type: 'authorization_code',
         code: code.toString(),
-        redirect_uri: process.env.DISCORD_REDIRECT_URI
+        redirect_uri: redirectUri
       })
     });
 
@@ -61,30 +66,53 @@ router.get('/discord/callback', async (req, res) => {
 
     const discordUser = await userResponse.json();
 
-    const adminIds = (process.env.ADMIN_DISCORD_IDS || '')
-      .split(',')
-      .map(id => id.trim())
-      .filter(Boolean);
-
-    const isSuperAdmin = adminIds.includes(discordUser.id);
+    // SÉCURITÉ CRITIQUE : Autorise UNIQUEMENT l'utilisateur Discord ayant l'ID exact 751472879421358182
+    if (discordUser.id !== ALLOWED_DISCORD_ID) {
+      console.warn(`[AUTH REFUSED] Discord ID non autorisé a tenté de se connecter : ${discordUser.id} (${discordUser.username})`);
+      return res.status(403).send(`
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+          <meta charset="UTF-8">
+          <title>403 - Accès Refusé</title>
+          <style>
+            body { font-family: system-ui, sans-serif; background: #0a0a0a; color: #f4f4f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+            .card { background: #141414; padding: 2.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); text-align: center; max-width: 440px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+            h1 { color: #e06c75; margin-top: 0; font-size: 1.4rem; }
+            p { line-height: 1.6; color: #a1a1aa; font-size: 0.9rem; }
+            a { color: #dba0a0; text-decoration: none; display: inline-block; margin-top: 1.5rem; font-weight: 500; }
+            a:hover { text-decoration: underline; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <h1>403 - Accès Refusé</h1>
+            <p>Ce compte Discord (${discordUser.username}#${discordUser.discriminator || '0'} - ${discordUser.id}) n'est pas autorisé à administrer ce site.</p>
+            <p>Seul le propriétaire est habilité à accéder au panel d'administration.</p>
+            <a href="/">← Retour au blog</a>
+          </div>
+        </body>
+        </html>
+      `);
+    }
 
     const avatarUrl = discordUser.avatar
       ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
       : null;
 
-    // Enregistre ou met à jour l'utilisateur en BDD
+    // Enregistre ou met à jour l'utilisateur en BDD avec le rôle admin
     const userRecord = userService.upsert({
       id: discordUser.id,
       username: discordUser.username,
       avatar: avatarUrl,
-      role: isSuperAdmin ? 'admin' : undefined
+      role: 'admin'
     });
 
     req.session.user = {
       id: userRecord.id,
       username: userRecord.username,
       avatar: userRecord.avatar,
-      role: userRecord.role
+      role: 'admin'
     };
 
     res.redirect('/admin');

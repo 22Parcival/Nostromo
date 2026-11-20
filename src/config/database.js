@@ -58,7 +58,53 @@ export function initDatabase(customPath) {
     CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
     CREATE INDEX IF NOT EXISTS idx_posts_published_at ON posts(published_at DESC);
     CREATE INDEX IF NOT EXISTS idx_posts_author_id ON posts(author_id);
+
+    CREATE TABLE IF NOT EXISTS site_config (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
+
+  // Initialisation par défaut de site_config si absente
+  const defaultConfigs = [
+    {
+      key: 'featured_project',
+      value: JSON.stringify({
+        title: 'Square_root',
+        badge: 'NOUVEAU',
+        description: 'Format d\'image expérimental qui réinvente les pixels.',
+        link: '#'
+      })
+    },
+    {
+      key: 'projects_list',
+      value: JSON.stringify([
+        {
+          title: 'Square_root',
+          description: 'un nouveau format de fichier qui remplace les pixels par Root',
+          link: '#'
+        },
+        {
+          title: 'Nostromo',
+          description: 'A CMS systeme',
+          link: '#'
+        }
+      ])
+    },
+    {
+      key: 'welcome_text',
+      value: 'Bienvenue sur mon site internet, sur celui ci je partagerai mes projets et des choses que j\'aime'
+    }
+  ];
+
+  const insertConfigStmt = dbInstance.prepare(`
+    INSERT OR IGNORE INTO site_config (key, value) VALUES (?, ?)
+  `);
+
+  for (const cfg of defaultConfigs) {
+    insertConfigStmt.run(cfg.key, cfg.value);
+  }
 
   try {
     dbInstance.exec("ALTER TABLE posts ADD COLUMN author_avatar TEXT DEFAULT ''");

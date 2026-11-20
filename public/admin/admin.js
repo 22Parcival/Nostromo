@@ -34,6 +34,60 @@ document.addEventListener('DOMContentLoaded', async () => {
   const newPostBtn = document.getElementById('new-post-btn');
   const themeToggleBtn = document.getElementById('theme-toggle');
 
+  // Nouveaux éléments pour la gestion unifiée & onglets
+  const navTabBlog = document.getElementById('nav-tab-blog');
+  const navTabSite = document.getElementById('nav-tab-site');
+  const studioLayout = document.querySelector('.studio-layout');
+  const siteConfigSection = document.getElementById('site-config-section');
+  const saveSiteConfigBtn = document.getElementById('save-site-config-btn');
+  const siteConfigStatus = document.getElementById('site-config-status');
+  const cfgWelcomeText = document.getElementById('cfg-welcome-text');
+  const cfgFeaturedTitle = document.getElementById('cfg-featured-title');
+  const cfgFeaturedBadge = document.getElementById('cfg-featured-badge');
+  const cfgFeaturedDesc = document.getElementById('cfg-featured-desc');
+  const cfgFeaturedLink = document.getElementById('cfg-featured-link');
+  const projectsContainer = document.getElementById('projects-items-container');
+  const addProjectBtn = document.getElementById('add-project-btn');
+  const toastNotification = document.getElementById('toast-notification');
+
+  let currentSiteProjects = [];
+
+  function showToast(message) {
+    if (!toastNotification) return;
+    toastNotification.innerHTML = `<span>✔</span> <span>${escapeHtml(message)}</span>`;
+    toastNotification.style.display = 'flex';
+    setTimeout(() => {
+      toastNotification.style.display = 'none';
+    }, 3500);
+  }
+
+  // ==========================================================================
+  // NAVIGATION PAR ONGLETS (ARTICLES DE BLOG VS CONFIGURATION PARCIVAL.FR)
+  // ==========================================================================
+  function switchTab(targetTab) {
+    if (targetTab === 'site') {
+      navTabBlog.classList.remove('active');
+      navTabBlog.setAttribute('aria-selected', 'false');
+      navTabSite.classList.add('active');
+      navTabSite.setAttribute('aria-selected', 'true');
+      studioLayout.style.display = 'none';
+      siteConfigSection.style.display = 'block';
+      loadSiteConfig();
+    } else {
+      navTabSite.classList.remove('active');
+      navTabSite.setAttribute('aria-selected', 'false');
+      navTabBlog.classList.add('active');
+      navTabBlog.setAttribute('aria-selected', 'true');
+      siteConfigSection.style.display = 'none';
+      studioLayout.style.display = 'flex';
+    }
+  }
+
+  if (navTabBlog && navTabSite) {
+    navTabBlog.addEventListener('click', () => switchTab('blog'));
+    navTabSite.addEventListener('click', () => switchTab('site'));
+  }
+
   // ==========================================================================
   // THÈME CLAIR / SOMBRE
   // ==========================================================================
@@ -538,6 +592,178 @@ document.addEventListener('DOMContentLoaded', async () => {
       alert('Erreur : ' + err.message);
     }
   });
+
+  // ==========================================================================
+  // CONFIGURATION PARCIVAL.FR (CMS HEADLESS)
+  // ==========================================================================
+  async function loadSiteConfig() {
+    if (siteConfigStatus) {
+      siteConfigStatus.innerHTML = '<span style="color: var(--text-tertiary);">⏳ Chargement...</span>';
+    }
+
+    try {
+      const res = await fetch('/api/admin/site-config');
+      if (!res.ok) throw new Error('Impossible de charger la configuration');
+      const data = await res.json();
+
+      // Remplir Bonjour / Welcome
+      if (cfgWelcomeText) {
+        cfgWelcomeText.value = data.welcome_text || '';
+      }
+
+      // Remplir À la une / Featured
+      const featured = data.featured_project || {};
+      if (cfgFeaturedTitle) cfgFeaturedTitle.value = featured.title || '';
+      if (cfgFeaturedBadge) cfgFeaturedBadge.value = featured.badge || '';
+      if (cfgFeaturedDesc) cfgFeaturedDesc.value = featured.description || '';
+      if (cfgFeaturedLink) cfgFeaturedLink.value = featured.link || '';
+
+      // Remplir Projets list
+      currentSiteProjects = Array.isArray(data.projects_list) ? data.projects_list : [];
+      renderProjectsList();
+
+      if (siteConfigStatus) {
+        siteConfigStatus.innerHTML = '<span style="color: var(--text-tertiary);">✔ Synchronisé</span>';
+      }
+    } catch (err) {
+      console.error(err);
+      if (siteConfigStatus) {
+        siteConfigStatus.innerHTML = '<span style="color: var(--danger);">Erreur de chargement</span>';
+      }
+    }
+  }
+
+  function renderProjectsList() {
+    if (!projectsContainer) return;
+
+    if (currentSiteProjects.length === 0) {
+      projectsContainer.innerHTML = `
+        <div style="padding: 1.5rem; text-align: center; color: var(--text-tertiary); font-size: 0.82rem; background: var(--bg-surface); border-radius: 6px; border: 1px dashed var(--border-default);">
+          Aucun projet dans la liste.<br>Cliquez sur "Ajouter un projet" pour en créer un.
+        </div>
+      `;
+      return;
+    }
+
+    projectsContainer.innerHTML = currentSiteProjects.map((p, idx) => `
+      <div class="project-item-card" data-idx="${idx}">
+        <div class="project-item-header">
+          <span class="project-item-index">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            Projet #${idx + 1}
+          </span>
+          <button type="button" class="btn btn-ghost btn-sm btn-delete-project" data-idx="${idx}" style="color: var(--danger);" title="Supprimer ce projet">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <span>Supprimer</span>
+          </button>
+        </div>
+        <div class="project-item-body-grid">
+          <div>
+            <label class="config-label">Titre</label>
+            <input type="text" class="form-input project-title-input" value="${escapeHtml(p.title || '')}" placeholder="Titre...">
+          </div>
+          <div>
+            <label class="config-label">Lien / URL</label>
+            <input type="text" class="form-input project-link-input" value="${escapeHtml(p.link || '')}" placeholder="https://... ou #">
+          </div>
+        </div>
+        <div>
+          <label class="config-label">Description</label>
+          <input type="text" class="form-input project-desc-input" value="${escapeHtml(p.description || '')}" placeholder="Courte description...">
+        </div>
+      </div>
+    `).join('');
+
+    // Événements pour modifier les projets en direct dans currentSiteProjects
+    projectsContainer.querySelectorAll('.project-item-card').forEach(card => {
+      const idx = Number(card.getAttribute('data-idx'));
+      const titleInp = card.querySelector('.project-title-input');
+      const linkInp = card.querySelector('.project-link-input');
+      const descInp = card.querySelector('.project-desc-input');
+
+      titleInp.addEventListener('input', () => {
+        currentSiteProjects[idx].title = titleInp.value;
+      });
+      linkInp.addEventListener('input', () => {
+        currentSiteProjects[idx].link = linkInp.value;
+      });
+      descInp.addEventListener('input', () => {
+        currentSiteProjects[idx].description = descInp.value;
+      });
+    });
+
+    // Événements de suppression
+    projectsContainer.querySelectorAll('.btn-delete-project').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.getAttribute('data-idx'));
+        currentSiteProjects.splice(idx, 1);
+        renderProjectsList();
+      });
+    });
+  }
+
+  if (addProjectBtn) {
+    addProjectBtn.addEventListener('click', () => {
+      currentSiteProjects.push({
+        title: 'Nouveau projet',
+        description: 'Description du projet',
+        link: '#'
+      });
+      renderProjectsList();
+      // Scroll smoothly to bottom of list
+      setTimeout(() => {
+        const lastCard = projectsContainer.querySelector('.project-item-card:last-child');
+        if (lastCard) {
+          lastCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          const firstInp = lastCard.querySelector('.project-title-input');
+          if (firstInp) firstInp.focus();
+        }
+      }, 50);
+    });
+  }
+
+  // Sauvegarde de la configuration de parcival.fr
+  if (saveSiteConfigBtn) {
+    saveSiteConfigBtn.addEventListener('click', async () => {
+      if (siteConfigStatus) {
+        siteConfigStatus.innerHTML = '<span style="color: var(--primary);">⏳ Sauvegarde en cours...</span>';
+      }
+
+      const payload = {
+        welcome_text: cfgWelcomeText ? cfgWelcomeText.value.trim() : '',
+        featured_project: {
+          title: cfgFeaturedTitle ? cfgFeaturedTitle.value.trim() : '',
+          badge: cfgFeaturedBadge ? cfgFeaturedBadge.value.trim() : '',
+          description: cfgFeaturedDesc ? cfgFeaturedDesc.value.trim() : '',
+          link: cfgFeaturedLink ? cfgFeaturedLink.value.trim() : ''
+        },
+        projects_list: currentSiteProjects
+      };
+
+      try {
+        const res = await fetch('/api/admin/site-config', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Erreur lors de la sauvegarde');
+        }
+
+        if (siteConfigStatus) {
+          siteConfigStatus.innerHTML = '<span style="color: var(--text-tertiary);">✔ Enregistré</span>';
+        }
+        showToast('Configuration de parcival.fr mise à jour avec succès !');
+      } catch (err) {
+        alert('Erreur : ' + err.message);
+        if (siteConfigStatus) {
+          siteConfigStatus.innerHTML = '<span style="color: var(--danger);">Erreur</span>';
+        }
+      }
+    });
+  }
 
   function escapeHtml(str) {
     return String(str)

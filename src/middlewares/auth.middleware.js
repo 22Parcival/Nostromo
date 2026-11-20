@@ -1,9 +1,11 @@
+const ALLOWED_DISCORD_ID = "751472879421358182";
+
 export function requireAuth(req, res, next) {
-  if (!req.session || !req.session.user) {
+  if (!req.session || !req.session.user || req.session.user.id !== ALLOWED_DISCORD_ID) {
     if (req.xhr || req.headers.accept?.includes('json')) {
-      return res.status(401).json({ error: 'Non authentifié. Veuillez vous connecter via Discord.' });
+      return res.status(401).json({ error: 'Non authentifié. Veuillez vous connecter via Discord avec le compte autorisé.' });
     }
-    return res.redirect('/auth/discord');
+    return res.redirect('/admin/login');
   }
 
   next();
@@ -11,7 +13,7 @@ export function requireAuth(req, res, next) {
 
 export function requireAdmin(req, res, next) {
   requireAuth(req, res, () => {
-    if (req.session.user.role !== 'admin') {
+    if (req.session.user.role !== 'admin' || req.session.user.id !== ALLOWED_DISCORD_ID) {
       if (req.xhr || req.headers.accept?.includes('json')) {
         return res.status(403).json({ error: 'Accès refusé : privilèges administrateur requis.' });
       }

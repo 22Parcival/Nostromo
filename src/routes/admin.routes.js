@@ -1,12 +1,42 @@
 import { Router } from 'express';
 import { postService } from '../services/post.service.js';
 import { userService } from '../services/user.service.js';
+import { siteConfigService } from '../services/site-config.service.js';
 import { uploadImage } from '../middlewares/upload.middleware.js';
 
 const router = Router();
 
 router.get('/me', (req, res) => {
   res.json({ user: req.session.user });
+});
+
+// ============================================================================
+// SITE CONFIG (parcival.fr)
+// ============================================================================
+router.get('/site-config', (req, res) => {
+  try {
+    const config = siteConfigService.getAll();
+    res.json(config);
+  } catch (error) {
+    console.error('[ADMIN API ERROR] Get site config:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération de la configuration du site.' });
+  }
+});
+
+router.put('/site-config', (req, res) => {
+  try {
+    const { featured_project, projects_list, welcome_text } = req.body;
+    const updates = {};
+    if (featured_project !== undefined) updates.featured_project = featured_project;
+    if (projects_list !== undefined) updates.projects_list = projects_list;
+    if (welcome_text !== undefined) updates.welcome_text = welcome_text;
+
+    const updated = siteConfigService.setMany(updates);
+    res.json({ success: true, message: 'Configuration mise à jour avec succès.', config: updated });
+  } catch (error) {
+    console.error('[ADMIN API ERROR] Update site config:', error);
+    res.status(500).json({ error: 'Erreur lors de la mise à jour de la configuration du site.' });
+  }
 });
 
 router.get('/posts', (req, res) => {
