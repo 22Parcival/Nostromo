@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+﻿import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -94,7 +94,7 @@ export function initDatabase(customPath) {
     },
     {
       key: 'welcome_text',
-      value: 'Bienvenue sur mon site internet, sur celui ci je partagerai mes projets et des choses que j\'aime'
+      value: 'Articles, retours d\'expérience et partages techniques.'
     }
   ];
 

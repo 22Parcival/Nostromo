@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr" data-theme="dark">
 <head>
   <meta charset="UTF-8">
@@ -12,6 +12,11 @@
       document.documentElement.setAttribute('data-theme', saved);
     })();
   </script>
+
+  <!-- Fonts: JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./admin.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -261,14 +266,14 @@
           <div class="config-card-header">
             <div class="config-card-title">
               <span class="card-icon">👋</span>
-              <h3>Message d'accueil ("Bonjour !")</h3>
+              <h3>Carte Bento : Blog (Articles &amp; Notes)</h3>
             </div>
             <span class="badge-chip">Accueil</span>
           </div>
           <div class="config-card-body">
             <label for="cfg-welcome-text" class="config-label">Texte de présentation</label>
-            <textarea id="cfg-welcome-text" class="form-textarea" rows="3" placeholder="Bienvenue sur mon site internet..."></textarea>
-            <span class="field-hint">Ce texte s'affiche en en-tête sur la page principale de parcival.fr.</span>
+            <textarea id="cfg-welcome-text" class="form-textarea" rows="3" placeholder="Articles, retours d'expérience et partages techniques."></textarea>
+            <span class="field-hint">Ce texte s'affiche comme description dans la carte Blog de la grille Bento sur parcival.fr.</span>
           </div>
         </section>
 

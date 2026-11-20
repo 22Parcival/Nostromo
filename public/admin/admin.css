@@ -8,17 +8,17 @@
   color-scheme: dark;
 
   /* Fonds profonds & mats style Sparkslyse */
-  --bg-app: #0a0a0a;
-  --bg-surface: #121212;
-  --bg-surface-elevated: #181818;
-  --bg-surface-hover: #1e1e1e;
-  --bg-input: #141414;
+  --bg-app: #09090b;
+  --bg-surface: #121215;
+  --bg-surface-elevated: #18181b;
+  --bg-surface-hover: #27272a;
+  --bg-input: #18181b;
 
   /* Bordures ultra-fines et élégantes */
   --border-subtle: rgba(255, 255, 255, 0.05);
   --border-default: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
-  --border-focus: #dba0a0;
+  --border-focus: #10b981;
 
   /* Typographie neutre */
   --text-primary: #f4f4f5;
@@ -27,19 +27,19 @@
   --text-inverse: #0a0a0a;
 
   /* Accent chaleureux Sparkslyse (sans bleu néon) */
-  --primary: #dba0a0;
-  --primary-hover: #e6b3b3;
-  --primary-subtle: rgba(219, 160, 160, 0.12);
-  --primary-border: rgba(219, 160, 160, 0.25);
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --primary-subtle: rgba(16, 185, 129, 0.12);
+  --primary-border: rgba(16, 185, 129, 0.25);
 
   /* Statuts discrets et mats */
   --badge-pub-bg: rgba(255, 255, 255, 0.06);
   --badge-pub-text: #e4e4e7;
   --badge-pub-border: rgba(255, 255, 255, 0.12);
 
-  --badge-draft-bg: rgba(219, 160, 160, 0.08);
-  --badge-draft-text: #dba0a0;
-  --badge-draft-border: rgba(219, 160, 160, 0.2);
+  --badge-draft-bg: rgba(234, 179, 8, 0.1);
+  --badge-draft-text: #eab308;
+  --badge-draft-border: rgba(234, 179, 8, 0.25);
 
   --danger: #e06c75;
   --danger-hover: #e5535f;
@@ -63,17 +63,17 @@
   --border-subtle: #f0f0f2;
   --border-default: #e4e4e7;
   --border-strong: #d4d4d8;
-  --border-focus: #9e4747;
+  --border-focus: #059669;
 
   --text-primary: #09090b;
   --text-secondary: #52525b;
   --text-tertiary: #a1a1aa;
   --text-inverse: #ffffff;
 
-  --primary: #9e4747;
-  --primary-hover: #853737;
-  --primary-subtle: rgba(158, 71, 71, 0.08);
-  --primary-border: rgba(158, 71, 71, 0.2);
+  --primary: #059669;
+  --primary-hover: #047857;
+  --primary-subtle: rgba(5, 150, 105, 0.08);
+  --primary-border: rgba(5, 150, 105, 0.2);
 
   --badge-pub-bg: #f4f4f5;
   --badge-pub-text: #27272a;
@@ -103,7 +103,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "JetBrains Mono", -apple-system, BlinkMacSystemFont, ui-monospace, monospace;
   background-color: var(--bg-app);
   color: var(--text-primary);
   height: 100vh;
