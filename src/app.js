@@ -16,6 +16,7 @@ dotenv.config();
 initDatabase();
 
 const app = express();
+app.set('trust proxy', 1);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Middleware CORS
@@ -30,7 +31,7 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:5501',
   'http://localhost:5501',
   'http://localhost:5500',
-  'https://parcival.fr'
+  'https://parcival.fr', 'https://blog.parcival.fr', 'https://panel.parcival.fr', 'https://blog.parcival.fr', 'https://panel.parcival.fr'
 ];
 
 app.use((req, res, next) => {
@@ -56,10 +57,12 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'nostromo_secret_key_change_in_prod',
   resave: false,
   saveUninitialized: false,
+  proxy: true,
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
+    domain: process.env.NODE_ENV === 'production' ? '.parcival.fr' : undefined,
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
 }));
@@ -73,6 +76,13 @@ app.get('/api/site-config', (req, res) => {
     console.error('[API ERROR] Get site-config:', error);
     res.status(500).json({ error: 'Erreur lors de la récupération de la configuration du site.' });
   }
+});
+
+app.get('/', (req, res, next) => {
+  if (req.hostname === 'panel.parcival.fr' || req.headers.host?.startsWith('panel.')) {
+    return res.redirect('/admin');
+  }
+  next();
 });
 
 app.use(express.static(path.join(__dirname, '../public')));
