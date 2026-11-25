@@ -45,9 +45,9 @@ router.get('/posts', (req, res) => {
 
     let posts;
     if (user.role === 'admin' && filter === 'all') {
-      posts = postService.getAll({ publishedOnly: false });
+      posts = postService.getAll({ publishedOnly: false, includeContent: true });
     } else {
-      posts = postService.getAll({ authorId: user.id, publishedOnly: false });
+      posts = postService.getAll({ authorId: user.id, publishedOnly: false, includeContent: true });
     }
 
     res.json(posts);

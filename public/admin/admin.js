@@ -276,8 +276,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           insertTextAtCursor(contentInput, '\n```\n', '\n```\n');
           break;
         case 'link':
-          insertTextAtCursor(contentInput, '[', '](https:
-
+          insertTextAtCursor(contentInput, '[', '](https://...)');
           break;
         case 'list':
           insertTextAtCursor(contentInput, '\n- ', '\n');
@@ -389,10 +388,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (posts.length > 0) {
         if (selectId) {
           const target = posts.find(p => p.id == selectId);
-          if (target) selectPost(target);
-          else selectPost(posts[0]);
-        } else if (!currentPostId) {
-          selectPost(posts[0]);
+          if (target) await selectPost(target);
+          else await selectPost(posts[0]);
+        } else if (currentPostId) {
+          const target = posts.find(p => p.id == currentPostId);
+          if (target) await selectPost(target);
+          else await selectPost(posts[0]);
+        } else {
+          await selectPost(posts[0]);
         }
       } else {
         newPostForm();
@@ -439,23 +442,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     }).join('');
 
     postsListEl.querySelectorAll('.post-item').forEach(li => {
-      li.addEventListener('click', () => {
+      li.addEventListener('click', async () => {
         const id = li.getAttribute('data-id');
         const post = posts.find(p => p.id == id);
-        if (post) selectPost(post);
+        if (post) await selectPost(post);
       });
     });
   }
 
-  function selectPost(post) {
+  async function selectPost(post) {
+    if (!post) return;
     currentPostId = post.id;
     postIdInput.value = post.id;
-    titleInput.value = post.title;
+    titleInput.value = post.title || '';
     slugInput.value = post.slug || '';
     statusSelect.value = post.status;
     summaryInput.value = post.summary || '';
     coverImageInput.value = post.cover_image || '';
-    contentInput.value = post.content || '';
+
+    let content = post.content;
+    if (content === undefined || content === null) {
+      try {
+        const res = await fetch(`/api/admin/posts/${post.id}`);
+        if (res.ok) {
+          const fullPost = await res.json();
+          content = fullPost.content || '';
+          post.content = content;
+        }
+      } catch (err) {
+        console.error('Erreur chargement contenu:', err);
+      }
+    }
+
+    contentInput.value = content || '';
     deleteBtn.style.display = 'inline-flex';
 
     updateCoverPreview();
@@ -537,6 +556,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const savedPost = await res.json();
       setUnsavedChanges(false);
+      showToast(savedPost.status === 'published' ? 'Article publié avec succès !' : 'Brouillon enregistré avec succès !');
       await loadPosts(savedPost.id);
     } catch (err) {
       alert('Erreur : ' + err.message);

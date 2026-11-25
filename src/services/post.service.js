@@ -88,7 +88,7 @@ export const postService = {
     return stmt.get(slug);
   },
 
-  getAll({ publishedOnly = false, authorId = null, limit = 50, offset = 0 } = {}) {
+  getAll({ publishedOnly = false, authorId = null, limit = 50, offset = 0, includeContent = false } = {}) {
     const db = getDb();
     const whereClauses = [];
     const params = [];
@@ -107,7 +107,7 @@ export const postService = {
       : 'ORDER BY created_at DESC';
 
     const query = `
-      SELECT id, title, slug, summary, status, cover_image, author_id, author_name, author_avatar, created_at, updated_at, published_at
+      SELECT ${includeContent ? 'id, title, slug, summary, content, status, cover_image, author_id, author_name, author_avatar, created_at, updated_at, published_at' : 'id, title, slug, summary, status, cover_image, author_id, author_name, author_avatar, created_at, updated_at, published_at'}
       FROM posts
       ${where}
       ${order}
@@ -134,7 +134,8 @@ export const postService = {
       values.push(fields.title);
     }
     if (fields.slug !== undefined) {
-      const finalSlug = generateUniqueSlug(fields.slug, id);
+      const slugBase = fields.slug && fields.slug.trim() !== '' ? fields.slug.trim() : (fields.title || existing.title || 'article');
+      const finalSlug = generateUniqueSlug(slugBase, id);
       updates.push('slug = ?');
       values.push(finalSlug);
     }

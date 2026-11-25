@@ -68,10 +68,16 @@ assert.strictEqual(bobPosts.length, 1);
 assert.strictEqual(bobPosts[0].id, postBobSameTitle.id);
 console.log('✔ Filtrage par auteur validé');
 
+// 5. Test récupération publique (seulement publiés) et inclusion du contenu
 const publicPosts = postService.getAll({ publishedOnly: true });
 assert.strictEqual(publicPosts.length, 1);
 assert.strictEqual(publicPosts[0].id, postAlice.id);
-console.log('✔ Liste publique (publishedOnly) validée');
+assert.strictEqual(publicPosts[0].content, undefined);
+
+const adminPostsWithContent = postService.getAll({ authorId: authorUser.id, includeContent: true });
+assert.strictEqual(adminPostsWithContent.length, 1);
+assert.strictEqual(adminPostsWithContent[0].content, '# Guide Node.js par Bob');
+console.log('✔ Liste avec/sans content (includeContent) validée');
 
 const updatedBob = postService.update(postBobSameTitle.id, {
   title: 'Guide Node.js par Bob (Mis à jour)',
