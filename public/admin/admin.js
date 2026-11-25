@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const data = await meRes.json();
     currentUser = data.user;
 
-    const roleLabel = '';
+    const roleLabel = currentUser.role === 'admin' ? 'Admin' : 'Auteur';
     userInfoEl.innerHTML = `
       ${currentUser.avatar ? `<img src="${currentUser.avatar}" alt="Avatar" class="user-avatar">` : ''}
       <span>${escapeHtml(currentUser.username)}</span>
