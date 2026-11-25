@@ -44,6 +44,11 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           <span>Articles de Blog</span>
         </button>
+        <button id="nav-tab-comments" class="main-nav-tab" type="button" role="tab" aria-selected="false" data-tab="comments">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <span>Commentaires</span>
+          <span id="nav-comments-badge" class="tab-badge" style="display: none;">0</span>
+        </button>
         <button id="nav-tab-site" class="main-nav-tab" type="button" role="tab" aria-selected="false" data-tab="site">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
           <span>Configuration parcival.fr</span>
@@ -243,7 +248,43 @@
     </main>
   </div>
 
-  
+  <!-- SECTION MODÉRATION DES COMMENTAIRES -->
+  <div id="comments-moderation-section" class="site-config-layout" style="display: none;">
+    <div class="site-config-container">
+      <div class="site-config-header">
+        <div>
+          <h2 class="config-page-title">Modération des commentaires</h2>
+          <p class="config-page-desc">Consultez, filtrez et modérez les messages laissés par vos lecteurs.</p>
+        </div>
+        <div class="config-actions">
+          <span id="comments-sync-status" class="save-indicator"></span>
+          <button id="refresh-comments-btn" type="button" class="btn btn-secondary btn-sm" title="Actualiser la liste">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            <span>Actualiser</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtres et recherche -->
+      <div class="comments-admin-toolbar">
+        <div class="comments-search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="search" id="admin-comments-search" placeholder="Rechercher par pseudo, texte ou article..." autocomplete="off">
+        </div>
+        <div class="comments-filter-select-wrap">
+          <select id="admin-comments-article-filter" class="form-select comments-select">
+            <option value="">Tous les articles</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Conteneur des commentaires -->
+      <div id="admin-comments-container" class="admin-comments-container">
+        <div class="comments-loading-state">Chargement des commentaires...</div>
+      </div>
+    </div>
+  </div>
+
   <div id="site-config-section" class="site-config-layout" style="display: none;">
     <div class="site-config-container">
       <div class="site-config-header">

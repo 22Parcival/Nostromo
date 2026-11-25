@@ -161,11 +161,29 @@ router.delete('/posts/:id', (req, res) => {
   }
 });
 
+router.get('/comments', (req, res) => {
+  try {
+    const user = req.session.user;
+    const { post_id } = req.query;
+
+    const filter = {};
+    if (post_id) filter.postId = Number(post_id);
+    if (user.role !== 'admin') filter.authorId = user.id;
+
+    const comments = commentService.getAll(filter);
+    res.json(comments);
+  } catch (error) {
+    console.error('[ADMIN API ERROR] Get comments:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des commentaires.' });
+  }
+});
+
 router.delete('/comments/:id', (req, res) => {
   try {
-    const success = commentService.delete(req.params.id);
+    const user = req.session.user;
+    const success = commentService.delete(req.params.id, user);
     if (!success) {
-      return res.status(404).json({ error: 'Commentaire non trouvé ou déjà supprimé.' });
+      return res.status(404).json({ error: 'Commentaire non trouvé ou non autorisé.' });
     }
     res.json({ success: true, message: 'Commentaire supprimé avec succès.' });
   } catch (error) {

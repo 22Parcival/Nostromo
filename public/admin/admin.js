@@ -35,9 +35,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   const themeToggleBtn = document.getElementById('theme-toggle');
 
   const navTabBlog = document.getElementById('nav-tab-blog');
+  const navTabComments = document.getElementById('nav-tab-comments');
   const navTabSite = document.getElementById('nav-tab-site');
+  const navCommentsBadge = document.getElementById('nav-comments-badge');
+
   const studioLayout = document.querySelector('.studio-layout');
+  const commentsModerationSection = document.getElementById('comments-moderation-section');
   const siteConfigSection = document.getElementById('site-config-section');
+
+  const adminCommentsContainer = document.getElementById('admin-comments-container');
+  const adminCommentsSearch = document.getElementById('admin-comments-search');
+  const adminCommentsArticleFilter = document.getElementById('admin-comments-article-filter');
+  const refreshCommentsBtn = document.getElementById('refresh-comments-btn');
+  const commentsSyncStatus = document.getElementById('comments-sync-status');
+
   const saveSiteConfigBtn = document.getElementById('save-site-config-btn');
   const siteConfigStatus = document.getElementById('site-config-status');
   const cfgWelcomeText = document.getElementById('cfg-welcome-text');
@@ -60,31 +71,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 3500);
   }
 
-
-
   function switchTab(targetTab) {
-    if (targetTab === 'site') {
-      navTabBlog.classList.remove('active');
-      navTabBlog.setAttribute('aria-selected', 'false');
-      navTabSite.classList.add('active');
-      navTabSite.setAttribute('aria-selected', 'true');
-      studioLayout.style.display = 'none';
+    [navTabBlog, navTabComments, navTabSite].forEach(tab => {
+      if (tab) {
+        tab.classList.remove('active');
+        tab.setAttribute('aria-selected', 'false');
+      }
+    });
+
+    studioLayout.style.display = 'none';
+    if (commentsModerationSection) commentsModerationSection.style.display = 'none';
+    siteConfigSection.style.display = 'none';
+
+    if (targetTab === 'comments') {
+      if (navTabComments) {
+        navTabComments.classList.add('active');
+        navTabComments.setAttribute('aria-selected', 'true');
+      }
+      if (commentsModerationSection) commentsModerationSection.style.display = 'block';
+      loadAdminComments();
+    } else if (targetTab === 'site') {
+      if (navTabSite) {
+        navTabSite.classList.add('active');
+        navTabSite.setAttribute('aria-selected', 'true');
+      }
       siteConfigSection.style.display = 'block';
       loadSiteConfig();
     } else {
-      navTabSite.classList.remove('active');
-      navTabSite.setAttribute('aria-selected', 'false');
-      navTabBlog.classList.add('active');
-      navTabBlog.setAttribute('aria-selected', 'true');
-      siteConfigSection.style.display = 'none';
+      if (navTabBlog) {
+        navTabBlog.classList.add('active');
+        navTabBlog.setAttribute('aria-selected', 'true');
+      }
       studioLayout.style.display = 'flex';
     }
   }
 
-  if (navTabBlog && navTabSite) {
-    navTabBlog.addEventListener('click', () => switchTab('blog'));
-    navTabSite.addEventListener('click', () => switchTab('site'));
-  }
+  if (navTabBlog) navTabBlog.addEventListener('click', () => switchTab('blog'));
+  if (navTabComments) navTabComments.addEventListener('click', () => switchTab('comments'));
+  if (navTabSite) navTabSite.addEventListener('click', () => switchTab('site'));
 
 
 
@@ -765,6 +789,194 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // ==========================================================================
+  // MODÉRATION DES COMMENTAIRES LECTEURS
+  // ==========================================================================
+
+  let adminCommentsList = [];
+  let commentsSearchQuery = '';
+  let commentsFilterPostId = '';
+
+  async function loadAdminComments() {
+    if (commentsSyncStatus) {
+      commentsSyncStatus.innerHTML = '<span style="color: var(--text-tertiary);">⏳ Chargement...</span>';
+    }
+
+    try {
+      const res = await fetch('/api/admin/comments');
+      if (!res.ok) throw new Error('Erreur de chargement des commentaires');
+      adminCommentsList = await res.json();
+
+      updateCommentsBadge(adminCommentsList.length);
+      populateCommentsArticleFilter();
+      renderAdminComments();
+
+      if (commentsSyncStatus) {
+        commentsSyncStatus.innerHTML = '<span style="color: var(--text-tertiary);">✔ Synchronisé</span>';
+      }
+    } catch (err) {
+      console.error(err);
+      if (commentsSyncStatus) {
+        commentsSyncStatus.innerHTML = '<span style="color: var(--danger);">Erreur</span>';
+      }
+      if (adminCommentsContainer) {
+        adminCommentsContainer.innerHTML = `
+          <div class="comments-admin-empty">
+            <p>Erreur lors de la récupération des commentaires : ${escapeHtml(err.message)}</p>
+          </div>
+        `;
+      }
+    }
+  }
+
+  async function updateCommentsBadgeQuietly() {
+    try {
+      const res = await fetch('/api/admin/comments');
+      if (res.ok) {
+        const comments = await res.json();
+        updateCommentsBadge(comments.length);
+      }
+    } catch (e) {
+      // Ignorer silencieusement
+    }
+  }
+
+  function updateCommentsBadge(count) {
+    if (!navCommentsBadge) return;
+    navCommentsBadge.textContent = count;
+    navCommentsBadge.style.display = count > 0 ? 'inline-block' : 'none';
+  }
+
+  function populateCommentsArticleFilter() {
+    if (!adminCommentsArticleFilter) return;
+    const currentVal = adminCommentsArticleFilter.value;
+
+    const articleMap = new Map();
+    adminCommentsList.forEach(c => {
+      if (c.post_id && !articleMap.has(c.post_id)) {
+        articleMap.set(c.post_id, c.post_title || `Article #${c.post_id}`);
+      }
+    });
+
+    let html = '<option value="">Tous les articles (' + adminCommentsList.length + ')</option>';
+    articleMap.forEach((title, postId) => {
+      const count = adminCommentsList.filter(c => c.post_id == postId).length;
+      html += `<option value="${postId}">${escapeHtml(title)} (${count})</option>`;
+    });
+
+    adminCommentsArticleFilter.innerHTML = html;
+    if (articleMap.has(Number(currentVal))) {
+      adminCommentsArticleFilter.value = currentVal;
+    }
+  }
+
+  function renderAdminComments() {
+    if (!adminCommentsContainer) return;
+
+    let filtered = adminCommentsList;
+
+    if (commentsFilterPostId) {
+      filtered = filtered.filter(c => c.post_id == commentsFilterPostId);
+    }
+
+    if (commentsSearchQuery) {
+      const q = commentsSearchQuery.toLowerCase();
+      filtered = filtered.filter(c => 
+        (c.author_name || '').toLowerCase().includes(q) ||
+        (c.content || '').toLowerCase().includes(q) ||
+        (c.post_title || '').toLowerCase().includes(q)
+      );
+    }
+
+    if (filtered.length === 0) {
+      adminCommentsContainer.innerHTML = `
+        <div class="comments-admin-empty">
+          <span style="font-size: 2.2rem; display: block; margin-bottom: 0.6rem;">💭</span>
+          <p>${adminCommentsList.length === 0 ? 'Aucun commentaire n\'a encore été publié par les lecteurs.' : 'Aucun commentaire ne correspond à votre filtre de recherche.'}</p>
+        </div>
+      `;
+      return;
+    }
+
+    adminCommentsContainer.innerHTML = filtered.map(c => {
+      const dateFormatted = new Date(c.created_at).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      return `
+        <div class="admin-comment-card" id="admin-comment-${c.id}">
+          <div class="admin-comment-header">
+            <div class="admin-comment-author-wrap">
+              <span class="admin-comment-avatar">${escapeHtml((c.author_name || 'A').slice(0, 2).toUpperCase())}</span>
+              <div class="admin-comment-meta-col">
+                <strong class="admin-comment-author">${escapeHtml(c.author_name || 'Anonyme')}</strong>
+                <span class="admin-comment-date">${escapeHtml(dateFormatted)}</span>
+              </div>
+            </div>
+            <div class="admin-comment-post-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              <a href="/#/article/${escapeHtml(c.post_slug || '')}" target="_blank" title="Voir l'article public">${escapeHtml(c.post_title || 'Article')}</a>
+            </div>
+          </div>
+          <div class="admin-comment-content">${escapeHtml(c.content)}</div>
+          <div class="admin-comment-footer">
+            <button type="button" class="btn btn-ghost btn-sm btn-delete-comment-admin" data-id="${c.id}" data-author="${escapeHtml(c.author_name || 'Anonyme')}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              <span>Supprimer le commentaire</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    adminCommentsContainer.querySelectorAll('.btn-delete-comment-admin').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const author = btn.getAttribute('data-author');
+
+        if (!confirm(`Supprimer définitivement le commentaire de "${author}" ? Cette action est irréversible.`)) return;
+
+        try {
+          const res = await fetch(`/api/admin/comments/${id}`, { method: 'DELETE' });
+          if (!res.ok) {
+            const errJson = await res.json();
+            throw new Error(errJson.error || 'Erreur lors de la suppression');
+          }
+
+          adminCommentsList = adminCommentsList.filter(c => c.id != id);
+          updateCommentsBadge(adminCommentsList.length);
+          populateCommentsArticleFilter();
+          renderAdminComments();
+          showToast('Commentaire supprimé avec succès !');
+        } catch (err) {
+          alert('Erreur : ' + err.message);
+        }
+      });
+    });
+  }
+
+  if (adminCommentsSearch) {
+    adminCommentsSearch.addEventListener('input', () => {
+      commentsSearchQuery = adminCommentsSearch.value.trim();
+      renderAdminComments();
+    });
+  }
+
+  if (adminCommentsArticleFilter) {
+    adminCommentsArticleFilter.addEventListener('change', () => {
+      commentsFilterPostId = adminCommentsArticleFilter.value;
+      renderAdminComments();
+    });
+  }
+
+  if (refreshCommentsBtn) {
+    refreshCommentsBtn.addEventListener('click', loadAdminComments);
+  }
+
   function escapeHtml(str) {
     return String(str)
       .replace(/&/g, '&amp;')
@@ -774,4 +986,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   await loadPosts();
+  updateCommentsBadgeQuietly();
 });

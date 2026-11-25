@@ -123,5 +123,21 @@ assert.strictEqual(deletedComment, true);
 assert.strictEqual(commentService.getCountByPostId(postAlice.id), 1);
 console.log('✔ Système de commentaires des lecteurs validé');
 
+// 8. Test de la modération des commentaires (panel admin)
+const adminAllComments = commentService.getAll();
+assert.strictEqual(adminAllComments.length, 1);
+assert.strictEqual(adminAllComments[0].post_title, postAlice.title);
+
+// Bob (author) ne peut pas supprimer un commentaire sur l'article d'Alice
+const deleteUnauthorized = commentService.delete(comment1.id, authorUser);
+assert.strictEqual(deleteUnauthorized, false);
+assert.strictEqual(commentService.getCountByPostId(postAlice.id), 1);
+
+// Alice (admin) peut supprimer le commentaire
+const deleteAuthorized = commentService.delete(comment1.id, adminUser);
+assert.strictEqual(deleteAuthorized, true);
+assert.strictEqual(commentService.getCountByPostId(postAlice.id), 0);
+console.log('✔ Modération et permissions des commentaires validées');
+
 closeDatabase();
 console.log('--- Tous les tests du système multi-auteurs ont réussi avec succès ! 🎉 ---');
