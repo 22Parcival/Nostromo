@@ -1,6 +1,7 @@
 import { initDatabase, closeDatabase } from './database.js';
 import { postService, slugify, generateUniqueSlug } from '../services/post.service.js';
 import { userService } from '../services/user.service.js';
+import { commentService } from '../services/comment.service.js';
 import assert from 'assert';
 
 console.log('--- Lancement des tests de la base de données & du système multi-auteurs ---');
@@ -91,6 +92,36 @@ const deleted = postService.delete(postBobSameTitle.id);
 assert.strictEqual(deleted, true);
 assert.strictEqual(postService.getById(postBobSameTitle.id), undefined);
 console.log('✔ Mise à jour et suppression d\'article validées');
+
+// 7. Test du système de commentaires des lecteurs
+const comment1 = commentService.create({
+  postId: postAlice.id,
+  authorName: 'LecteurCurieux',
+  content: 'Super article sur Node.js, très clair !'
+});
+assert.strictEqual(comment1.author_name, 'LecteurCurieux');
+assert.strictEqual(comment1.content, 'Super article sur Node.js, très clair !');
+assert.strictEqual(comment1.post_id, postAlice.id);
+
+const comment2 = commentService.create({
+  postId: postAlice.id,
+  authorName: '',
+  content: 'Deuxième commentaire anonyme.'
+});
+assert.strictEqual(comment2.author_name, 'Anonyme');
+
+const aliceComments = commentService.getByPostId(postAlice.id);
+assert.strictEqual(aliceComments.length, 2);
+assert.strictEqual(commentService.getCountByPostId(postAlice.id), 2);
+
+// Vérifier que getById et getAll retournent le bon comment_count
+const postWithCount = postService.getById(postAlice.id);
+assert.strictEqual(postWithCount.comment_count, 2);
+
+const deletedComment = commentService.delete(comment2.id);
+assert.strictEqual(deletedComment, true);
+assert.strictEqual(commentService.getCountByPostId(postAlice.id), 1);
+console.log('✔ Système de commentaires des lecteurs validé');
 
 closeDatabase();
 console.log('--- Tous les tests du système multi-auteurs ont réussi avec succès ! 🎉 ---');

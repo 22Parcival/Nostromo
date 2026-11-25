@@ -73,8 +73,8 @@ export const postService = {
   getById(id, publishedOnly = false) {
     const db = getDb();
     const query = publishedOnly
-      ? "SELECT * FROM posts WHERE id = ? AND status = 'published'"
-      : "SELECT * FROM posts WHERE id = ?";
+      ? "SELECT posts.*, (SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) as comment_count FROM posts WHERE id = ? AND status = 'published'"
+      : "SELECT posts.*, (SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) as comment_count FROM posts WHERE id = ?";
     const stmt = db.prepare(query);
     return stmt.get(id);
   },
@@ -82,8 +82,8 @@ export const postService = {
   getBySlug(slug, publishedOnly = false) {
     const db = getDb();
     const query = publishedOnly
-      ? "SELECT * FROM posts WHERE slug = ? AND status = 'published'"
-      : "SELECT * FROM posts WHERE slug = ?";
+      ? "SELECT posts.*, (SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) as comment_count FROM posts WHERE slug = ? AND status = 'published'"
+      : "SELECT posts.*, (SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) as comment_count FROM posts WHERE slug = ?";
     const stmt = db.prepare(query);
     return stmt.get(slug);
   },
@@ -107,7 +107,8 @@ export const postService = {
       : 'ORDER BY created_at DESC';
 
     const query = `
-      SELECT ${includeContent ? 'id, title, slug, summary, content, status, cover_image, author_id, author_name, author_avatar, created_at, updated_at, published_at' : 'id, title, slug, summary, status, cover_image, author_id, author_name, author_avatar, created_at, updated_at, published_at'}
+      SELECT ${includeContent ? 'posts.id, posts.title, posts.slug, posts.summary, posts.content, posts.status, posts.cover_image, posts.author_id, posts.author_name, posts.author_avatar, posts.created_at, posts.updated_at, posts.published_at' : 'posts.id, posts.title, posts.slug, posts.summary, posts.status, posts.cover_image, posts.author_id, posts.author_name, posts.author_avatar, posts.created_at, posts.updated_at, posts.published_at'},
+        (SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) as comment_count
       FROM posts
       ${where}
       ${order}

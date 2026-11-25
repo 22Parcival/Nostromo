@@ -182,7 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${post.author_avatar ? `<img src="${escapeHtml(post.author_avatar)}" class="author-avatar-small" alt="">` : ''}
                 <span>${escapeHtml(post.author_name || 'Parcival')} • ${date}</span>
               </div>
-              <span class="read-more-link">view →</span>
+              <div class="card-footer-meta">
+                ${post.comment_count > 0 ? `<span class="card-comments-badge" title="${post.comment_count} commentaire${post.comment_count > 1 ? 's' : ''}">💬 ${post.comment_count}</span>` : ''}
+                <span class="read-more-link">view →</span>
+              </div>
             </div>
           </div>
         </article>
@@ -245,6 +248,8 @@ document.addEventListener('DOMContentLoaded', () => {
               <span>Date: ${dateStr}</span>
               <span>•</span>
               <span class="accent">⏱ ~${readTime} min de lecture</span>
+              <span>•</span>
+              <a href="#comments-section" class="article-comments-link" style="color: var(--emerald); text-decoration: none;">💬 <span id="meta-comment-count">${post.comment_count || 0}</span> commentaire${(post.comment_count || 0) > 1 ? 's' : ''}</a>
             </div>
             <h1 class="article-headline">${escapeHtml(post.title)}</h1>
             ${post.summary ? `<p class="article-summary-lead">${escapeHtml(post.summary)}</p>` : ''}
@@ -255,10 +260,46 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="markdown-body">
             ${cleanHtml}
           </div>
+
+          <section class="comments-section" id="comments-section">
+            <div class="comments-header">
+              <div class="comments-title-wrap">
+                <span class="comments-icon">💬</span>
+                <h3 class="comments-title">Commentaires (<span id="comments-count">${post.comment_count || 0}</span>)</h3>
+              </div>
+              <span class="comments-hint">Discussions & retours de lecture</span>
+            </div>
+
+            <form id="comment-form" class="comment-form">
+              <div class="comment-field">
+                <label for="comment-author" class="comment-label">Votre pseudo ou nom</label>
+                <input type="text" id="comment-author" class="comment-input" placeholder="Parcival, Alex, CyberDev..." maxlength="50" autocomplete="nickname">
+              </div>
+              <div class="comment-field">
+                <label for="comment-body" class="comment-label">Votre message</label>
+                <textarea id="comment-body" class="comment-textarea" placeholder="Partagez votre avis, une question ou une remarque sur cet article..." rows="3" maxlength="1000" required></textarea>
+              </div>
+              <div class="comment-form-actions">
+                <span class="comment-counter"><span id="comment-char-count">0</span> / 1000</span>
+                <button type="submit" id="comment-submit-btn" class="comment-submit-btn">
+                  <span>Publier</span>
+                  <span class="btn-arrow">→</span>
+                </button>
+              </div>
+              <div id="comment-feedback" class="comment-feedback" style="display: none;"></div>
+            </form>
+
+            <div class="comments-list-wrapper">
+              <div id="comments-list" class="comments-list">
+                <div class="comments-loading">Chargement des commentaires...</div>
+              </div>
+            </div>
+          </section>
         </article>
       `;
 
       modalContent.scrollTop = 0;
+      setupComments(post);
     } catch (err) {
       console.error(err);
       modalContent.innerHTML = `
@@ -267,6 +308,226 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
     }
+  }
+
+  async function setupComments(post) {
+    const form = document.getElementById('comment-form');
+    const authorInput = document.getElementById('comment-author');
+    const bodyInput = document.getElementById('comment-body');
+    const charCount = document.getElementById('comment-char-count');
+    const submitBtn = document.getElementById('comment-submit-btn');
+    const feedback = document.getElementById('comment-feedback');
+    const commentsList = document.getElementById('comments-list');
+    const commentsCount = document.getElementById('comments-count');
+    const metaCount = document.getElementById('meta-comment-count');
+
+    if (!form || !commentsList) return;
+
+    const savedName = localStorage.getItem('nostromo_reader_name') || '';
+    if (authorInput && savedName) {
+      authorInput.value = savedName;
+    }
+
+    if (bodyInput && charCount) {
+      bodyInput.addEventListener('input', () => {
+        charCount.textContent = bodyInput.value.length;
+      });
+    }
+
+    let isAdmin = false;
+    try {
+      const meRes = await fetch('/api/admin/me');
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        isAdmin = meData?.user?.role === 'admin';
+      }
+    } catch {
+      isAdmin = false;
+    }
+
+    async function fetchAndRenderComments() {
+      try {
+        const res = await fetch(`/api/posts/${post.slug || post.id}/comments`);
+        if (!res.ok) throw new Error('Erreur de chargement');
+        const comments = await res.json();
+
+        if (commentsCount) commentsCount.textContent = comments.length;
+        if (metaCount) metaCount.textContent = comments.length;
+
+        if (comments.length === 0) {
+          commentsList.innerHTML = `
+            <div class="comments-empty">
+              <span class="comments-empty-icon">💭</span>
+              <p>Aucun commentaire pour le moment.<br>Soyez le premier à partager votre avis !</p>
+            </div>
+          `;
+          return;
+        }
+
+        commentsList.innerHTML = comments.map(c => renderCommentCard(c, isAdmin)).join('');
+        attachCommentListeners();
+      } catch (err) {
+        console.error(err);
+        commentsList.innerHTML = `
+          <div class="comments-error">
+            <p>Impossible de charger les commentaires.</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderCommentCard(c, showDelete) {
+      const dateFormatted = formatCommentDate(c.created_at);
+      const initials = getInitials(c.author_name);
+      return `
+        <div class="comment-item" id="comment-${c.id}">
+          <div class="comment-avatar">${escapeHtml(initials)}</div>
+          <div class="comment-content-wrap">
+            <div class="comment-item-header">
+              <span class="comment-author-name">${escapeHtml(c.author_name || 'Anonyme')}</span>
+              <span class="comment-dot">•</span>
+              <span class="comment-date" title="${escapeHtml(c.created_at)}">${escapeHtml(dateFormatted)}</span>
+              ${showDelete ? `
+                <button type="button" class="btn-delete-comment" data-id="${c.id}" title="Supprimer ce commentaire (Modération)">
+                  ✕ Supprimer
+                </button>
+              ` : ''}
+            </div>
+            <div class="comment-text">${escapeHtml(c.content)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function attachCommentListeners() {
+      if (!isAdmin) return;
+      commentsList.querySelectorAll('.btn-delete-comment').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const commentId = btn.getAttribute('data-id');
+          if (!confirm('Supprimer définitivement ce commentaire ?')) return;
+          try {
+            const delRes = await fetch(`/api/admin/comments/${commentId}`, { method: 'DELETE' });
+            if (delRes.ok) {
+              const el = document.getElementById(`comment-${commentId}`);
+              if (el) el.remove();
+              const remaining = commentsList.querySelectorAll('.comment-item').length;
+              if (commentsCount) commentsCount.textContent = remaining;
+              if (metaCount) metaCount.textContent = remaining;
+              if (remaining === 0) {
+                commentsList.innerHTML = `
+                  <div class="comments-empty">
+                    <span class="comments-empty-icon">💭</span>
+                    <p>Aucun commentaire pour le moment.<br>Soyez le premier à partager votre avis !</p>
+                  </div>
+                `;
+              }
+            } else {
+              alert('Erreur lors de la suppression.');
+            }
+          } catch (e) {
+            alert('Erreur : ' + e.message);
+          }
+        });
+      });
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const author = authorInput.value.trim() || 'Anonyme';
+      const content = bodyInput.value.trim();
+
+      if (!content) return;
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>Envoi...</span>`;
+
+      try {
+        const postRes = await fetch(`/api/posts/${post.slug || post.id}/comments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ author_name: author, content })
+        });
+
+        if (!postRes.ok) {
+          const errData = await postRes.json();
+          throw new Error(errData.error || 'Erreur lors de l\'envoi.');
+        }
+
+        const newComment = await postRes.json();
+
+        if (author && author !== 'Anonyme') {
+          localStorage.setItem('nostromo_reader_name', author);
+        }
+
+        bodyInput.value = '';
+        if (charCount) charCount.textContent = '0';
+
+        if (feedback) {
+          feedback.textContent = '✔ Commentaire publié avec succès !';
+          feedback.className = 'comment-feedback success';
+          feedback.style.display = 'block';
+          setTimeout(() => { feedback.style.display = 'none'; }, 3500);
+        }
+
+        const emptyState = commentsList.querySelector('.comments-empty');
+        if (emptyState) {
+          commentsList.innerHTML = '';
+        }
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = renderCommentCard(newComment, isAdmin);
+        const cardNode = tempDiv.firstElementChild;
+        commentsList.appendChild(cardNode);
+        attachCommentListeners();
+
+        const total = commentsList.querySelectorAll('.comment-item').length;
+        if (commentsCount) commentsCount.textContent = total;
+        if (metaCount) metaCount.textContent = total;
+
+        cardNode.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } catch (err) {
+        if (feedback) {
+          feedback.textContent = '❌ ' + err.message;
+          feedback.className = 'comment-feedback error';
+          feedback.style.display = 'block';
+        }
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>Publier</span><span class="btn-arrow">→</span>`;
+      }
+    });
+
+    await fetchAndRenderComments();
+  }
+
+  function formatCommentDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString.endsWith('Z') || dateString.includes('T') ? dateString : dateString.replace(' ', 'T') + 'Z');
+    const now = new Date();
+    const diffSec = Math.floor((now - date) / 1000);
+
+    if (isNaN(date.getTime())) return dateString;
+    if (diffSec < 60) return "À l'instant";
+    if (diffSec < 3600) return `Il y a ${Math.max(1, Math.floor(diffSec / 60))} min`;
+    if (diffSec < 86400) return `Il y a ${Math.floor(diffSec / 3600)} h`;
+
+    return date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'short',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function getInitials(name) {
+    const cleaned = String(name || 'A').trim();
+    if (!cleaned) return 'A';
+    const parts = cleaned.split(/\s+/);
+    if (parts.length > 1) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return cleaned.slice(0, 2).toUpperCase();
   }
 
   function closeModal(updateHash = true) {

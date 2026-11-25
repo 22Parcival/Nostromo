@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { postService } from '../services/post.service.js';
 import { userService } from '../services/user.service.js';
 import { siteConfigService } from '../services/site-config.service.js';
+import { commentService } from '../services/comment.service.js';
 import { uploadImage } from '../middlewares/upload.middleware.js';
 
 const router = Router();
@@ -157,6 +158,19 @@ router.delete('/posts/:id', (req, res) => {
   } catch (error) {
     console.error('[ADMIN API ERROR] Delete post:', error);
     res.status(500).json({ error: 'Erreur lors de la suppression de l\'article.' });
+  }
+});
+
+router.delete('/comments/:id', (req, res) => {
+  try {
+    const success = commentService.delete(req.params.id);
+    if (!success) {
+      return res.status(404).json({ error: 'Commentaire non trouvé ou déjà supprimé.' });
+    }
+    res.json({ success: true, message: 'Commentaire supprimé avec succès.' });
+  } catch (error) {
+    console.error('[ADMIN API ERROR] Delete comment:', error);
+    res.status(500).json({ error: 'Erreur lors de la suppression du commentaire.' });
   }
 });
 
