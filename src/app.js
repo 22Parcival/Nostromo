@@ -23,20 +23,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const ALLOWED_ORIGIN_REGEX = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/;
 const ALLOWED_ORIGINS = [
-  'http:
 
-  'http:
 
-  'http:
 
   'http://localhost:3000',
-  'http:
 
-  'http:
 
   'http://localhost:5501',
   'http://localhost:5500',
-  'https://parcival.fr', 'https://blog.parcival.fr', 'https://panel.parcival.fr', 'https://blog.parcival.fr', 'https://panel.parcival.fr'
+  'https://parcival.fr', 'https://dev.parcival.fr', 'https://blog.parcival.fr', 'https://panel.parcival.fr'
 ];
 
 app.use((req, res, next) => {
