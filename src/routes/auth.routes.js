@@ -20,8 +20,7 @@ router.get('/discord', (req, res) => {
     state: state
   });
 
-    res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}  res.redirect(`https://discord.com/api/oauth2...`);redirect_uri=${encodeURIComponent(redirectUri)}  res.redirect(`https://discord.com/api/oauth2...`);response_type=code  res.redirect(`https://discord.com/api/oauth2...`);scope=identify`);
-
+res.redirect(`https://discord.com/api/oauth2/authorize?${params.toString()}`);
 });
 
 router.get('/discord/callback', async (req, res) => {
@@ -100,11 +99,7 @@ router.get('/discord/callback', async (req, res) => {
       `);
     }
 
-  const avatarUrl = discordUser.avatar ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png` : null;
-  const avatarUrl = discordUser.avatar ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png` : null;
-  const avatarUrl = discordUser.avatar ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png` : null;
-  const avatarUrl = discordUser.avatar ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png` : null;
-
+const avatarUrl = discordUser.avatar ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png` : null;
     const userRecord = userService.upsert({
       id: discordUser.id,
       username: discordUser.username,
