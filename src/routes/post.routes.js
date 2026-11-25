@@ -22,12 +22,10 @@ router.get('/:identifier', (req, res) => {
     const { identifier } = req.params;
     let post = null;
 
-    // Si l'identifiant est un nombre entier, tester par ID d'abord
     if (/^\d+$/.test(identifier)) {
       post = postService.getById(Number(identifier), true);
     }
 
-    // Si non trouvé ou si l'identifiant est une chaîne (slug), chercher par slug
     if (!post) {
       post = postService.getBySlug(identifier, true);
     }

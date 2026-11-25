@@ -1,7 +1,4 @@
-/**
- * NOSTROMO BLOG - FRONTEND ENGINE
- * Thème parcival.fr (OS window, Bento grid, Markdown viewer)
- */
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const app = document.getElementById('app');
@@ -16,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentSearch = '';
   let activeTag = 'ALL';
 
-  // Raccourci clavier "/" pour rechercher
   window.addEventListener('keydown', (e) => {
     if (e.key === '/' && document.activeElement !== searchInput && !modal.classList.contains('open')) {
       e.preventDefault();
@@ -27,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Gestion des événements de fermeture de la modale
   modalCloseBtn.addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
@@ -35,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Copier le lien
   modalShareBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(window.location.href).then(() => {
       const orig = modalShareBtn.innerHTML;
@@ -46,13 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Barre de recherche
   searchInput.addEventListener('input', (e) => {
     currentSearch = e.target.value.toLowerCase().trim();
     renderBentoGrid();
   });
 
-  // Routeur via Hash (#/article/slug ou #)
   async function handleRouting() {
     const hash = window.location.hash;
     if (hash.startsWith('#/article/')) {
@@ -68,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Chargement des articles depuis l'API
   async function loadPosts() {
     renderSkeleton();
     try {
@@ -118,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </section>
     `;
 
-    // Filtres tags
     const filterButtons = document.querySelectorAll('.tag-pill');
     filterButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -199,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }).join('');
 
-    // Click handler pour chaque carte
     gridContainer.querySelectorAll('.os-card').forEach(card => {
       card.addEventListener('click', () => {
         const slug = card.dataset.slug;
@@ -208,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Ouverture et lecture d'un article dans la fenêtre OS
   async function openArticle(slug) {
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
@@ -242,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
         day: 'numeric'
       });
 
-      // Calcul estimation temps de lecture
       const words = (post.content || '').trim().split(/\s+/).length;
       const readTime = Math.max(1, Math.ceil(words / 200));
 
@@ -271,7 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </article>
       `;
 
-      // Scroll top
       modalContent.scrollTop = 0;
     } catch (err) {
       console.error(err);

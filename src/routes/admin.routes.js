@@ -10,9 +10,8 @@ router.get('/me', (req, res) => {
   res.json({ user: req.session.user });
 });
 
-// ============================================================================
-// SITE CONFIG (parcival.fr)
-// ============================================================================
+
+
 router.get('/site-config', (req, res) => {
   try {
     const config = siteConfigService.getAll();

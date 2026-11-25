@@ -19,15 +19,20 @@ const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Middleware CORS
-// Origins acceptÃ©es en dÃ©veloppement et production
+
 const ALLOWED_ORIGIN_REGEX = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/;
 const ALLOWED_ORIGINS = [
-  'http://127.0.0.1:5173',
-  'http://localhost:5173',
-  'http://127.0.0.1:3000',
+  'http:
+
+  'http:
+
+  'http:
+
   'http://localhost:3000',
-  'http://127.0.0.1:5500',
-  'http://127.0.0.1:5501',
+  'http:
+
+  'http:
+
   'http://localhost:5501',
   'http://localhost:5500',
   'https://parcival.fr'

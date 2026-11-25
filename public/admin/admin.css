@@ -1,38 +1,35 @@
-/* ==========================================================================
-   NOSTROMO STUDIO — INSPIRÉ PAR SPARKEYSE (MINIMALISTE & MAT)
-   Palette neutre profonde #0a0a0a, accent doux #dba0a0, zéro néon bleu.
-   ========================================================================== */
+
 
 :root,
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  /* Fonds profonds & mats style Sparkslyse */
+  
   --bg-app: #09090b;
   --bg-surface: #121215;
   --bg-surface-elevated: #18181b;
   --bg-surface-hover: #27272a;
   --bg-input: #18181b;
 
-  /* Bordures ultra-fines et élégantes */
+  
   --border-subtle: rgba(255, 255, 255, 0.05);
   --border-default: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
   --border-focus: #10b981;
 
-  /* Typographie neutre */
+  
   --text-primary: #f4f4f5;
   --text-secondary: #a1a1aa;
   --text-tertiary: #71717a;
   --text-inverse: #0a0a0a;
 
-  /* Accent chaleureux Sparkslyse (sans bleu néon) */
+  
   --primary: #10b981;
   --primary-hover: #059669;
   --primary-subtle: rgba(16, 185, 129, 0.12);
   --primary-border: rgba(16, 185, 129, 0.25);
 
-  /* Statuts discrets et mats */
+  
   --badge-pub-bg: rgba(255, 255, 255, 0.06);
   --badge-pub-text: #e4e4e7;
   --badge-pub-border: rgba(255, 255, 255, 0.12);
@@ -53,7 +50,7 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  /* Mode clair propre et contemporain */
+  
   --bg-app: #fafafa;
   --bg-surface: #ffffff;
   --bg-surface-elevated: #f4f4f5;
@@ -92,9 +89,7 @@
   --scrollbar-track: #fafafa;
 }
 
-/* ==========================================================================
-   RESET & FONT
-   ========================================================================== */
+
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -119,9 +114,7 @@ input, textarea, select, button {
   color: inherit;
 }
 
-/* ==========================================================================
-   BOUTONS (MINIMALISTES, MATS)
-   ========================================================================== */
+
 
 .btn {
   display: inline-flex;
@@ -201,9 +194,7 @@ input, textarea, select, button {
   margin-left: 0.35rem;
 }
 
-/* ==========================================================================
-   EN-TÊTE
-   ========================================================================== */
+
 
 .app-header {
   height: 52px;
@@ -258,7 +249,7 @@ input, textarea, select, button {
   background-color: var(--border-default);
 }
 
-/* Theme Switcher */
+
 #theme-toggle {
   color: var(--text-secondary);
 }
@@ -270,7 +261,7 @@ input, textarea, select, button {
 :root[data-theme="light"] .icon-sun { display: none; }
 :root[data-theme="light"] .icon-moon { display: block; }
 
-/* Profil utilisateur */
+
 .user-profile {
   display: flex;
   align-items: center;
@@ -304,9 +295,7 @@ input, textarea, select, button {
   background: var(--primary-subtle);
 }
 
-/* ==========================================================================
-   DISPOSITION PRINCIPALE
-   ========================================================================== */
+
 
 .studio-layout {
   display: flex;
@@ -314,7 +303,7 @@ input, textarea, select, button {
   overflow: hidden;
 }
 
-/* Volet gauche (Sidebar) */
+
 .studio-sidebar {
   width: 310px;
   background: var(--bg-surface);
@@ -397,7 +386,7 @@ input, textarea, select, button {
   font-weight: 600;
 }
 
-/* Liste des articles */
+
 .posts-list {
   flex: 1;
   overflow-y: auto;
@@ -472,9 +461,7 @@ input, textarea, select, button {
   border-radius: 50%;
 }
 
-/* ==========================================================================
-   ESPACE DE RÉDACTION
-   ========================================================================== */
+
 
 .studio-main {
   flex: 1;
@@ -490,7 +477,7 @@ input, textarea, select, button {
   height: 100%;
 }
 
-/* Barre d'action contextuelle */
+
 .editor-action-bar {
   padding: 0.6rem 1.5rem;
   border-bottom: 1px solid var(--border-default);
@@ -524,7 +511,7 @@ input, textarea, select, button {
   color: var(--text-tertiary);
 }
 
-/* Onglets mode de travail */
+
 .view-mode-tabs {
   display: flex;
   background: var(--bg-input);
@@ -550,7 +537,7 @@ input, textarea, select, button {
   font-weight: 600;
 }
 
-/* Grand champ de titre */
+
 .editor-headline-area {
   padding: 1.25rem 1.5rem 0.5rem 1.5rem;
   background: var(--bg-surface);
@@ -572,7 +559,7 @@ input, textarea, select, button {
   opacity: 0.5;
 }
 
-/* Paramètres & Métadonnées */
+
 .meta-accordion {
   margin: 0.5rem 1.5rem 0.75rem 1.5rem;
   background: var(--bg-input);
@@ -700,7 +687,7 @@ input, textarea, select, button {
   justify-content: center;
 }
 
-/* Barre d'outils Markdown */
+
 .markdown-toolbar {
   padding: 0.4rem 1.5rem;
   background: var(--bg-surface);
@@ -761,9 +748,7 @@ input, textarea, select, button {
   font-family: ui-monospace, monospace;
 }
 
-/* ==========================================================================
-   ESPACE ÉDITEUR & APERÇU (SPLIT WORKSPACE)
-   ========================================================================== */
+
 
 .split-workspace {
   flex: 1;
@@ -808,7 +793,7 @@ input, textarea, select, button {
   color: var(--text-primary);
 }
 
-/* Modes de vue */
+
 .split-workspace.mode-write .pane-editor {
   flex: 1;
   border-right: none;
@@ -831,9 +816,7 @@ input, textarea, select, button {
   flex: 1;
 }
 
-/* ==========================================================================
-   TYPOGRAPHIE DU RENDU MARKDOWN
-   ========================================================================== */
+
 
 .markdown-body {
   font-size: 0.95rem;
@@ -911,9 +894,7 @@ input, textarea, select, button {
   margin: 2rem 0;
 }
 
-/* ==========================================================================
-   NAVIGATION PAR ONGLETS PRINCIPAUX
-   ========================================================================== */
+
 
 .main-nav-tabs {
   display: flex;
@@ -957,9 +938,7 @@ input, textarea, select, button {
   color: var(--primary);
 }
 
-/* ==========================================================================
-   SECTION CONFIGURATION PARCIVAL.FR
-   ========================================================================== */
+
 
 .site-config-layout {
   flex: 1;
@@ -1086,7 +1065,7 @@ input, textarea, select, button {
   gap: 1rem;
 }
 
-/* Liste des projets dynamiques */
+
 .projects-items-list {
   display: flex;
   flex-direction: column;
@@ -1135,7 +1114,7 @@ input, textarea, select, button {
   justify-content: flex-end;
 }
 
-/* Notification Toast */
+
 .toast-notification {
   position: fixed;
   bottom: 2rem;
@@ -1167,9 +1146,7 @@ input, textarea, select, button {
   }
 }
 
-/* ==========================================================================
-   RESPONSIVE
-   ========================================================================== */
+
 
 @media (max-width: 900px) {
   .studio-layout {

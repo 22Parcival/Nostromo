@@ -9,7 +9,8 @@ router.get('/discord', (req, res) => {
   const state = crypto.randomBytes(16).toString('hex');
   req.session.oauthState = state;
 
-  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http://127.0.0.1:3000/api/auth/discord/callback';
+  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http:
+
 
   const params = new URLSearchParams({
     client_id: process.env.DISCORD_CLIENT_ID,
@@ -19,7 +20,8 @@ router.get('/discord', (req, res) => {
     state: state
   });
 
-  res.redirect(`https://discord.com/oauth2/authorize?${params.toString()}`);
+  res.redirect(`https:
+
 });
 
 router.get('/discord/callback', async (req, res) => {
@@ -34,10 +36,12 @@ router.get('/discord/callback', async (req, res) => {
     return res.status(400).send('Code d\'autorisation manquant.');
   }
 
-  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http://127.0.0.1:3000/api/auth/discord/callback';
+  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http:
+
 
   try {
-    const tokenResponse = await fetch('https://discord.com/api/v10/oauth2/token', {
+    const tokenResponse = await fetch('https:
+
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
@@ -56,7 +60,8 @@ router.get('/discord/callback', async (req, res) => {
 
     const tokens = await tokenResponse.json();
 
-    const userResponse = await fetch('https://discord.com/api/v10/users/@me', {
+    const userResponse = await fetch('https:
+
       headers: { Authorization: `Bearer ${tokens.access_token}` }
     });
 
@@ -66,7 +71,6 @@ router.get('/discord/callback', async (req, res) => {
 
     const discordUser = await userResponse.json();
 
-    // SÉCURITÉ CRITIQUE : Autorise UNIQUEMENT l'utilisateur Discord ayant l'ID exact 751472879421358182
     if (discordUser.id !== ALLOWED_DISCORD_ID) {
       console.warn(`[AUTH REFUSED] Discord ID non autorisé a tenté de se connecter : ${discordUser.id} (${discordUser.username})`);
       return res.status(403).send(`
@@ -97,10 +101,10 @@ router.get('/discord/callback', async (req, res) => {
     }
 
     const avatarUrl = discordUser.avatar
-      ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
+      ? `https:
+
       : null;
 
-    // Enregistre ou met à jour l'utilisateur en BDD avec le rôle admin
     const userRecord = userService.upsert({
       id: discordUser.id,
       username: discordUser.username,

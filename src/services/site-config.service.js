@@ -25,7 +25,6 @@ export const siteConfigService = {
       }
     }
 
-    // Récupérer le dernier article publié en bonus
     const latestPosts = postService.getAll({ publishedOnly: true, limit: 1 });
     result.latest_post = latestPosts.length > 0 ? latestPosts[0] : null;
 

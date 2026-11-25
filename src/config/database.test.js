@@ -9,11 +9,11 @@ const db = initDatabase(':memory:');
 assert.ok(db, 'La base de données en mémoire doit être initialisée');
 console.log('✔ Connexion SQLite établie en mémoire');
 
-// 1. Test du service utilisateur
 const adminUser = userService.upsert({
   id: 'admin_123',
   username: 'AliceAdmin',
-  avatar: 'https://example.com/alice.png',
+  avatar: 'https:
+
   role: 'admin'
 });
 assert.strictEqual(adminUser.id, 'admin_123');
@@ -22,19 +22,18 @@ assert.strictEqual(adminUser.role, 'admin');
 const authorUser = userService.upsert({
   id: 'author_456',
   username: 'BobAuthor',
-  avatar: 'https://example.com/bob.png',
+  avatar: 'https:
+
   role: 'author'
 });
 assert.strictEqual(authorUser.id, 'author_456');
 assert.strictEqual(authorUser.role, 'author');
 console.log('✔ Gestion des utilisateurs (Admin & Auteur) validée');
 
-// 2. Test slugify & slug unique
 assert.strictEqual(slugify('Mon Premier Article !'), 'mon-premier-article');
 assert.strictEqual(slugify('Élégant & Simple 123'), 'elegant-simple-123');
 console.log('✔ Fonction slugify validée');
 
-// 3. Création d'articles par plusieurs auteurs
 const postAlice = postService.create({
   title: 'Guide complet Node.js',
   summary: 'Tout sur Node.js.',
@@ -48,7 +47,6 @@ assert.strictEqual(postAlice.author_id, 'admin_123');
 assert.strictEqual(postAlice.slug, 'guide-complet-nodejs');
 assert.strictEqual(postAlice.status, 'published');
 
-// Deuxième article avec le même titre créé par Bob (test de collision de slug)
 const postBobSameTitle = postService.create({
   title: 'Guide complet Node.js',
   summary: 'Une autre version du guide.',
@@ -61,7 +59,6 @@ const postBobSameTitle = postService.create({
 assert.strictEqual(postBobSameTitle.slug, 'guide-complet-nodejs-2');
 console.log('✔ Gestion automatique des collisions de slug validée');
 
-// 4. Test filtrage par auteur
 const alicePosts = postService.getAll({ authorId: adminUser.id });
 assert.strictEqual(alicePosts.length, 1);
 assert.strictEqual(alicePosts[0].id, postAlice.id);
@@ -71,13 +68,11 @@ assert.strictEqual(bobPosts.length, 1);
 assert.strictEqual(bobPosts[0].id, postBobSameTitle.id);
 console.log('✔ Filtrage par auteur validé');
 
-// 5. Test récupération publique (seulement publiés)
 const publicPosts = postService.getAll({ publishedOnly: true });
 assert.strictEqual(publicPosts.length, 1);
 assert.strictEqual(publicPosts[0].id, postAlice.id);
 console.log('✔ Liste publique (publishedOnly) validée');
 
-// 6. Test mise à jour et suppression
 const updatedBob = postService.update(postBobSameTitle.id, {
   title: 'Guide Node.js par Bob (Mis à jour)',
   status: 'published'

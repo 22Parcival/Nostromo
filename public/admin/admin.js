@@ -2,10 +2,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   let posts = [];
   let currentPostId = null;
   let currentUser = null;
-  let currentFilter = 'mine'; // 'mine' ou 'all'
+  let currentFilter = 'mine';
+
   let searchQuery = '';
 
-  // Elements du DOM
   const userInfoEl = document.getElementById('user-info');
   const sidebarTitleEl = document.getElementById('sidebar-title');
   const filterTabsEl = document.getElementById('filter-tabs');
@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const newPostBtn = document.getElementById('new-post-btn');
   const themeToggleBtn = document.getElementById('theme-toggle');
 
-  // Nouveaux éléments pour la gestion unifiée & onglets
   const navTabBlog = document.getElementById('nav-tab-blog');
   const navTabSite = document.getElementById('nav-tab-site');
   const studioLayout = document.querySelector('.studio-layout');
@@ -61,9 +60,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 3500);
   }
 
-  // ==========================================================================
-  // NAVIGATION PAR ONGLETS (ARTICLES DE BLOG VS CONFIGURATION PARCIVAL.FR)
-  // ==========================================================================
+
+
   function switchTab(targetTab) {
     if (targetTab === 'site') {
       navTabBlog.classList.remove('active');
@@ -88,9 +86,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     navTabSite.addEventListener('click', () => switchTab('site'));
   }
 
-  // ==========================================================================
-  // THÈME CLAIR / SOMBRE
-  // ==========================================================================
+
+
   function initTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
     themeToggleBtn.setAttribute('title', currentTheme === 'dark' ? 'Passer au mode clair' : 'Passer au mode sombre');
@@ -105,16 +102,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   initTheme();
 
-  // ==========================================================================
-  // AUTHENTIFICATION
-  // ==========================================================================
+
+
   try {
     const meRes = await fetch('/api/admin/me');
     if (!meRes.ok) throw new Error('Non authentifié');
     const data = await meRes.json();
     currentUser = data.user;
 
-    const roleLabel = currentUser.role === 'admin' ? 'Admin' : 'Auteur';
+    const roleLabel = '';
     userInfoEl.innerHTML = `
       ${currentUser.avatar ? `<img src="${currentUser.avatar}" alt="Avatar" class="user-avatar">` : ''}
       <span>${escapeHtml(currentUser.username)}</span>
@@ -146,9 +142,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // ==========================================================================
-  // RECHERCHE EN TEMPS RÉEL DANS LA SIDEBAR
-  // ==========================================================================
+
+
   if (postsSearchInput) {
     postsSearchInput.addEventListener('input', () => {
       searchQuery = postsSearchInput.value.trim().toLowerCase();
@@ -156,9 +151,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // ==========================================================================
-  // ONGLETS DU MODE ÉDITEUR (RÉDIGER / SCINDÉ / APERÇU)
-  // ==========================================================================
+
+
   const viewModeTabs = document.querySelectorAll('.view-mode-tab');
   viewModeTabs.forEach(tab => {
     tab.addEventListener('click', () => {
@@ -172,15 +166,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // ==========================================================================
-  // PRÉVISUALISATION & COMPTEUR DE MOTS
-  // ==========================================================================
+
+
   function updatePreview() {
     const rawMarkdown = contentInput.value;
     const rawHtml = marked.parse(rawMarkdown);
     previewBox.innerHTML = DOMPurify.sanitize(rawHtml);
 
-    // Compteur de mots
     const words = rawMarkdown.trim() ? rawMarkdown.trim().split(/\s+/).length : 0;
     if (wordCountEl) {
       wordCountEl.textContent = `${words} ${words > 1 ? 'mots' : 'mot'}`;
@@ -206,9 +198,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // ==========================================================================
-  // GESTION DE L'IMAGE DE COUVERTURE
-  // ==========================================================================
+
+
   function updateCoverPreview() {
     const url = coverImageInput.value.trim();
     if (url) {
@@ -245,9 +236,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // ==========================================================================
-  // BARRE D'OUTILS MARKDOWN & INSERTION
-  // ==========================================================================
+
+
   function insertTextAtCursor(textarea, textBefore, textAfter = '') {
     const startPos = textarea.selectionStart;
     const endPos = textarea.selectionEnd;
@@ -286,7 +276,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           insertTextAtCursor(contentInput, '\n```\n', '\n```\n');
           break;
         case 'link':
-          insertTextAtCursor(contentInput, '[', '](https://)');
+          insertTextAtCursor(contentInput, '[', '](https:
+
           break;
         case 'list':
           insertTextAtCursor(contentInput, '\n- ', '\n');
@@ -295,9 +286,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // ==========================================================================
-  // TÉLÉVERSEMENT D'IMAGES (BUTTON, DRAG&DROP, PASTE)
-  // ==========================================================================
+
+
   async function uploadImageFile(file) {
     if (!file) return null;
     uploadStatusEl.style.display = 'inline';
@@ -382,9 +372,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ==========================================================================
-  // CHARGEMENT & AFFICHAGE DES ARTICLES
-  // ==========================================================================
+
+
   async function loadPosts(selectId = null) {
     try {
       const url = currentUser.role === 'admin'
@@ -509,9 +498,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   newPostBtn.addEventListener('click', newPostForm);
 
-  // ==========================================================================
-  // ENREGISTREMENT (SUBMIT & RACCOURCI CTRL+S)
-  // ==========================================================================
+
+
   async function submitPost() {
     if (!titleInput.value.trim() || !contentInput.value.trim()) {
       alert('Veuillez renseigner au moins le titre et le contenu de l\'article.');
@@ -561,7 +549,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await submitPost();
   });
 
-  // Raccourci clavier universel : Ctrl+S ou Cmd+S
   window.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault();
@@ -569,9 +556,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ==========================================================================
-  // SUPPRESSION D'ARTICLE
-  // ==========================================================================
+
+
   deleteBtn.addEventListener('click', async () => {
     if (!currentPostId) return;
     if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.')) return;
@@ -593,9 +579,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ==========================================================================
-  // CONFIGURATION PARCIVAL.FR (CMS HEADLESS)
-  // ==========================================================================
+
+
   async function loadSiteConfig() {
     if (siteConfigStatus) {
       siteConfigStatus.innerHTML = '<span style="color: var(--text-tertiary);">⏳ Chargement...</span>';
@@ -606,19 +591,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!res.ok) throw new Error('Impossible de charger la configuration');
       const data = await res.json();
 
-      // Remplir Bonjour / Welcome
       if (cfgWelcomeText) {
         cfgWelcomeText.value = data.welcome_text || '';
       }
 
-      // Remplir À la une / Featured
       const featured = data.featured_project || {};
       if (cfgFeaturedTitle) cfgFeaturedTitle.value = featured.title || '';
       if (cfgFeaturedBadge) cfgFeaturedBadge.value = featured.badge || '';
       if (cfgFeaturedDesc) cfgFeaturedDesc.value = featured.description || '';
       if (cfgFeaturedLink) cfgFeaturedLink.value = featured.link || '';
 
-      // Remplir Projets list
       currentSiteProjects = Array.isArray(data.projects_list) ? data.projects_list : [];
       renderProjectsList();
 
@@ -664,7 +646,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
           <div>
             <label class="config-label">Lien / URL</label>
-            <input type="text" class="form-input project-link-input" value="${escapeHtml(p.link || '')}" placeholder="https://... ou #">
+            <input type="text" class="form-input project-link-input" value="${escapeHtml(p.link || '')}" placeholder="https:
+
           </div>
         </div>
         <div>
@@ -674,7 +657,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
     `).join('');
 
-    // Événements pour modifier les projets en direct dans currentSiteProjects
     projectsContainer.querySelectorAll('.project-item-card').forEach(card => {
       const idx = Number(card.getAttribute('data-idx'));
       const titleInp = card.querySelector('.project-title-input');
@@ -692,7 +674,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     });
 
-    // Événements de suppression
     projectsContainer.querySelectorAll('.btn-delete-project').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = Number(btn.getAttribute('data-idx'));
@@ -710,7 +691,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         link: '#'
       });
       renderProjectsList();
-      // Scroll smoothly to bottom of list
+
       setTimeout(() => {
         const lastCard = projectsContainer.querySelector('.project-item-card:last-child');
         if (lastCard) {
@@ -722,7 +703,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Sauvegarde de la configuration de parcival.fr
   if (saveSiteConfigBtn) {
     saveSiteConfigBtn.addEventListener('click', async () => {
       if (siteConfigStatus) {

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark light">
-  <title>Nostromo Studio — Panel Auteur & Admin</title>
+  <title>Nostromo Studio — Panel Auteur</title>
   
   <script>
     (function() {
@@ -13,7 +13,7 @@
     })();
   </script>
 
-  <!-- Fonts: JetBrains Mono -->
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
 </head>
 <body>
-  <!-- Header Bar -->
+  
   <header class="app-header">
     <div class="header-left">
       <a href="/" target="_blank" class="brand-link" title="Ouvrir le blog public">
@@ -38,7 +38,7 @@
         <span class="brand-badge">Studio</span>
       </a>
 
-      <!-- Navigation principale par onglets -->
+      
       <nav class="main-nav-tabs" role="tablist">
         <button id="nav-tab-blog" class="main-nav-tab active" type="button" role="tab" aria-selected="true" data-tab="blog">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -57,7 +57,7 @@
     </div>
 
     <div class="header-right">
-      <!-- Theme Switcher (Dark / Light) -->
+      
       <button id="theme-toggle" class="btn btn-ghost btn-icon" type="button" aria-label="Changer le thème (sombre / clair)" title="Basculer entre mode sombre et clair">
         <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="5"></circle>
@@ -77,16 +77,16 @@
 
       <div class="divider-vertical"></div>
 
-      <!-- User Profile Pill -->
+      
       <div class="user-profile" id="user-info">
         <span class="user-loading">Chargement...</span>
       </div>
     </div>
   </header>
 
-  <!-- Studio Layout -->
+  
   <div class="studio-layout">
-    <!-- Sidebar: Posts List -->
+    
     <aside class="studio-sidebar">
       <div class="sidebar-top">
         <div class="sidebar-headline">
@@ -109,16 +109,16 @@
       </div>
 
       <ul id="posts-list" class="posts-list">
-        <!-- Rendered by admin.js -->
+        
       </ul>
     </aside>
 
-    <!-- Main Workspace -->
+    
     <main class="studio-main">
       <form id="post-form" class="editor-container">
         <input type="hidden" id="post-id">
 
-        <!-- Context Bar -->
+        
         <div class="editor-action-bar">
           <div class="action-bar-left">
             <div id="post-author-banner" class="author-status-pill" style="display: none;"></div>
@@ -126,7 +126,7 @@
           </div>
 
           <div class="action-bar-right">
-            <!-- Mode d'affichage éditeur : Écrit / Aperçu / Scindé -->
+            
             <div class="view-mode-tabs" role="group" aria-label="Mode de travail">
               <button type="button" class="view-mode-tab" data-mode="write" title="Uniquement le texte">Rédiger</button>
               <button type="button" class="view-mode-tab active" data-mode="split" title="Écran scindé">Scindé</button>
@@ -146,12 +146,12 @@
           </div>
         </div>
 
-        <!-- Article Headline -->
+        
         <div class="editor-headline-area">
           <input type="text" id="title" class="title-input" required placeholder="Titre de l'article..." autocomplete="off">
         </div>
 
-        <!-- Meta Section (Collapsible details) -->
+        
         <details class="meta-accordion" open>
           <summary class="meta-accordion-header">
             <span class="meta-title">
@@ -203,7 +203,7 @@
           </div>
         </details>
 
-        <!-- Markdown Formatting Toolbar -->
+        
         <div class="markdown-toolbar">
           <div class="toolbar-group">
             <button type="button" class="tool-btn" data-tool="bold" title="Gras (Ctrl+B)"><strong>B</strong></button>
@@ -229,7 +229,7 @@
           </div>
         </div>
 
-        <!-- Split / Single Workspace -->
+        
         <div id="split-workspace" class="split-workspace mode-split">
           <div class="pane pane-editor">
             <textarea id="content" class="content-textarea" required placeholder="# Commencez à écrire...&#10;&#10;💡 Vous pouvez également glisser-déposer ou coller (Ctrl+V) des images directement ici."></textarea>
@@ -243,7 +243,7 @@
     </main>
   </div>
 
-  <!-- Section Onglet 2 : Configuration parcival.fr -->
+  
   <div id="site-config-section" class="site-config-layout" style="display: none;">
     <div class="site-config-container">
       <div class="site-config-header">
@@ -261,7 +261,7 @@
       </div>
 
       <div class="config-cards-grid">
-        <!-- Carte 1: Message d'accueil / Bonjour -->
+        
         <section class="config-card">
           <div class="config-card-header">
             <div class="config-card-title">
@@ -277,7 +277,7 @@
           </div>
         </section>
 
-        <!-- Carte 2: Projet à la une -->
+        
         <section class="config-card">
           <div class="config-card-header">
             <div class="config-card-title">
@@ -308,7 +308,7 @@
           </div>
         </section>
 
-        <!-- Carte 3: Liste "Mes projets" -->
+        
         <section class="config-card config-card-wide">
           <div class="config-card-header">
             <div class="config-card-title">
@@ -322,7 +322,7 @@
           </div>
           <div class="config-card-body">
             <div id="projects-items-container" class="projects-items-list">
-              <!-- Rendu dynamique par JS -->
+              
             </div>
           </div>
         </section>

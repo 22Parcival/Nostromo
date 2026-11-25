@@ -1,7 +1,4 @@
-/* ==========================================================================
-   NOSTROMO BLOG - THEME PARCIVAL.FR
-   Dark Mode profond (#09090b), Bento Grid, Fenêtres OS, JetBrains Mono, Vert Émeraude (#10b981)
-   ========================================================================== */
+
 
 :root {
   --bg-deep: #09090b;
@@ -44,7 +41,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Grille de fond subtile façon parcival.fr */
+
 .bg-grid-pattern {
   position: fixed;
   inset: 0;
@@ -56,9 +53,7 @@ body {
   z-index: 0;
 }
 
-/* ==========================================================================
-   BARRE DE STATUT SUPÉRIEURE (OS STATUS BAR)
-   ========================================================================== */
+
 
 .os-status-bar {
   position: sticky;
@@ -148,7 +143,7 @@ body {
   border: 1px solid var(--border-subtle);
 }
 
-/* Recherche & Accès Admin */
+
 .search-box-wrapper {
   position: relative;
   display: flex;
@@ -212,9 +207,7 @@ body {
   border-color: var(--text-dim);
 }
 
-/* ==========================================================================
-   LAYOUT PRINCIPAL
-   ========================================================================== */
+
 
 .main-layout {
   position: relative;
@@ -224,7 +217,7 @@ body {
   padding: 0 1.5rem 5rem 1.5rem;
 }
 
-/* Bannière / Hero Style Terminal OS */
+
 .bento-hero {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -265,7 +258,7 @@ body {
   max-width: 650px;
 }
 
-/* Tags de filtrage */
+
 .filter-tags-bar {
   display: flex;
   flex-wrap: wrap;
@@ -291,9 +284,7 @@ body {
   background: rgba(16, 185, 129, 0.08);
 }
 
-/* ==========================================================================
-   BENTO GRID POUR LES ARTICLES
-   ========================================================================== */
+
 
 .bento-grid {
   display: grid;
@@ -301,7 +292,7 @@ body {
   gap: 1.5rem;
 }
 
-/* Carte OS Window */
+
 .os-card {
   background: var(--bg-card);
   backdrop-filter: blur(8px);
@@ -322,7 +313,7 @@ body {
   box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.6), 0 0 20px -2px var(--emerald-glow);
 }
 
-/* Barre de titre macOS avec 3 points */
+
 .os-titlebar {
   background: rgba(24, 24, 27, 0.95);
   border-bottom: 1px solid var(--border-subtle);
@@ -368,7 +359,7 @@ body {
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-/* Contenu de la carte */
+
 .card-cover {
   width: 100%;
   height: 180px;
@@ -441,9 +432,7 @@ body {
   gap: 0.25rem;
 }
 
-/* ==========================================================================
-   FENÊTRE MODALE OS POUR LECTURE DE L'ARTICLE
-   ========================================================================== */
+
 
 .os-modal-backdrop {
   position: fixed;
@@ -509,7 +498,7 @@ body {
   scroll-behavior: smooth;
 }
 
-/* En-tête de l'article dans la modale */
+
 .article-header {
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
@@ -557,9 +546,7 @@ body {
   margin-bottom: 2rem;
 }
 
-/* ==========================================================================
-   STYLE MARKDOWN / CONTENU DE L'ARTICLE
-   ========================================================================== */
+
 
 .markdown-body {
   font-size: 0.95rem;
@@ -664,9 +651,7 @@ body {
   margin: 2.5rem 0;
 }
 
-/* ==========================================================================
-   ÉTATS & RESPONSIVE
-   ========================================================================== */
+
 
 .empty-state, .error-state {
   grid-column: 1 / -1;
