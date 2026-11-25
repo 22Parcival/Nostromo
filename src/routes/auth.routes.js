@@ -9,7 +9,7 @@ router.get('/discord', (req, res) => {
   const state = crypto.randomBytes(16).toString('hex');
   req.session.oauthState = state;
 
-  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http:
+  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http://localhost:3000/api/auth/discord/callback';
 
 
   const params = new URLSearchParams({
@@ -36,11 +36,11 @@ router.get('/discord/callback', async (req, res) => {
     return res.status(400).send('Code d\'autorisation manquant.');
   }
 
-  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http:
+  const redirectUri = process.env.DISCORD_REDIRECT_URI || 'http://localhost:3000/api/auth/discord/callback';
 
 
   try {
-    const tokenResponse = await fetch('https:
+    const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
 
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -60,7 +60,7 @@ router.get('/discord/callback', async (req, res) => {
 
     const tokens = await tokenResponse.json();
 
-    const userResponse = await fetch('https:
+    const userResponse = await fetch('https://discord.com/api/users/@me', {
 
       headers: { Authorization: `Bearer ${tokens.access_token}` }
     });

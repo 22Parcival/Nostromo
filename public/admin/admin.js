@@ -646,7 +646,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
           <div>
             <label class="config-label">Lien / URL</label>
-            <input type="text" class="form-input project-link-input" value="${escapeHtml(p.link || '')}" placeholder="https:
+            <input type="text" class="form-input project-link-input" value="${escapeHtml(p.link || '')}" placeholder="https://..." />
 
           </div>
         </div>

@@ -12,7 +12,7 @@ console.log('✔ Connexion SQLite établie en mémoire');
 const adminUser = userService.upsert({
   id: 'admin_123',
   username: 'AliceAdmin',
-  avatar: 'https:
+  avatar: 'https://example.com/avatar.png',
 
   role: 'admin'
 });
@@ -22,7 +22,7 @@ assert.strictEqual(adminUser.role, 'admin');
 const authorUser = userService.upsert({
   id: 'author_456',
   username: 'BobAuthor',
-  avatar: 'https:
+  avatar: 'https://example.com/avatar.png',
 
   role: 'author'
 });
