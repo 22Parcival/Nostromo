@@ -302,6 +302,41 @@
       </div>
 
       <div class="config-cards-grid">
+        <!-- Bandeau d'information -->
+        <section class="config-card">
+          <div class="config-card-header">
+            <div class="config-card-title">
+              <span class="card-icon">📢</span>
+              <h3>Bandeau d'information</h3>
+            </div>
+            <span class="badge-chip highlight">Blog</span>
+          </div>
+          <div class="config-card-body">
+            <div class="banner-toggle-row">
+              <label class="toggle-switch">
+                <input type="checkbox" id="cfg-banner-enabled">
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="toggle-label">Afficher le bandeau sur le blog</span>
+            </div>
+            <div class="meta-field" style="margin-top: 0.75rem;">
+              <label for="cfg-banner-text" class="config-label">Message du bandeau</label>
+              <input type="text" id="cfg-banner-text" class="form-input" placeholder="Ex: 🎉 Les commentaires sont maintenant disponibles !">
+              <span class="field-hint">Ce texte s'affiche en haut du blog public pour avertir vos lecteurs d'une nouveauté ou d'une information importante.</span>
+            </div>
+            <div class="form-row-2" style="margin-top: 0.75rem;">
+              <div>
+                <label for="cfg-banner-link" class="config-label">Lien (optionnel)</label>
+                <input type="text" id="cfg-banner-link" class="form-input" placeholder="https://... ou #/article/slug">
+              </div>
+              <div>
+                <label for="cfg-banner-link-text" class="config-label">Texte du lien</label>
+                <input type="text" id="cfg-banner-link-text" class="form-input" placeholder="En savoir plus →">
+              </div>
+            </div>
+          </div>
+        </section>
+
         
         <section class="config-card">
           <div class="config-card-header">

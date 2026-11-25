@@ -60,6 +60,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const addProjectBtn = document.getElementById('add-project-btn');
   const toastNotification = document.getElementById('toast-notification');
 
+  const cfgBannerEnabled = document.getElementById('cfg-banner-enabled');
+  const cfgBannerText = document.getElementById('cfg-banner-text');
+  const cfgBannerLink = document.getElementById('cfg-banner-link');
+  const cfgBannerLinkText = document.getElementById('cfg-banner-link-text');
+
   let currentSiteProjects = [];
 
   function showToast(message) {
@@ -79,30 +84,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-    studioLayout.style.display = 'none';
+    if (studioLayout) studioLayout.style.display = 'none';
     if (commentsModerationSection) commentsModerationSection.style.display = 'none';
-    siteConfigSection.style.display = 'none';
+    if (siteConfigSection) siteConfigSection.style.display = 'none';
 
     if (targetTab === 'comments') {
       if (navTabComments) {
         navTabComments.classList.add('active');
         navTabComments.setAttribute('aria-selected', 'true');
       }
-      if (commentsModerationSection) commentsModerationSection.style.display = 'block';
+      if (commentsModerationSection) commentsModerationSection.style.display = 'flex';
       loadAdminComments();
     } else if (targetTab === 'site') {
       if (navTabSite) {
         navTabSite.classList.add('active');
         navTabSite.setAttribute('aria-selected', 'true');
       }
-      siteConfigSection.style.display = 'block';
+      if (siteConfigSection) siteConfigSection.style.display = 'flex';
       loadSiteConfig();
     } else {
       if (navTabBlog) {
         navTabBlog.classList.add('active');
         navTabBlog.setAttribute('aria-selected', 'true');
       }
-      studioLayout.style.display = 'flex';
+      if (studioLayout) studioLayout.style.display = 'flex';
     }
   }
 
@@ -648,6 +653,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       currentSiteProjects = Array.isArray(data.projects_list) ? data.projects_list : [];
       renderProjectsList();
 
+      const banner = data.info_banner || {};
+      if (cfgBannerEnabled) cfgBannerEnabled.checked = !!banner.enabled;
+      if (cfgBannerText) cfgBannerText.value = banner.text || '';
+      if (cfgBannerLink) cfgBannerLink.value = banner.link || '';
+      if (cfgBannerLinkText) cfgBannerLinkText.value = banner.link_text || '';
+
       if (siteConfigStatus) {
         siteConfigStatus.innerHTML = '<span style="color: var(--text-tertiary);">✔ Synchronisé</span>';
       }
@@ -761,7 +772,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           description: cfgFeaturedDesc ? cfgFeaturedDesc.value.trim() : '',
           link: cfgFeaturedLink ? cfgFeaturedLink.value.trim() : ''
         },
-        projects_list: currentSiteProjects
+        projects_list: currentSiteProjects,
+        info_banner: {
+          enabled: cfgBannerEnabled ? cfgBannerEnabled.checked : false,
+          text: cfgBannerText ? cfgBannerText.value.trim() : '',
+          link: cfgBannerLink ? cfgBannerLink.value.trim() : '',
+          link_text: cfgBannerLinkText ? cfgBannerLinkText.value.trim() : ''
+        }
       };
 
       try {
